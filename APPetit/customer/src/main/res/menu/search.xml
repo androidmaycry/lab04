@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/search"
+        android:title="@string/search_title"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.SearchView" />
+    <item
+        android:id="@+id/cuisine_ita"
+        android:orderInCategory="100"
+        android:title="Italian"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/cuisine_jap"
+        android:orderInCategory="100"
+        android:title="Japanese"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/cuisine_fra"
+        android:orderInCategory="100"
+        android:title="French"
+        app:showAsAction="never" />
+
+
+
+</menu>

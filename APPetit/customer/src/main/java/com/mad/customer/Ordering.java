@@ -1,6 +1,6 @@
 package com.mad.customer;
 
-import static com.mad.lib.SharedClass.*;
+import static com.mad.mylibrary.SharedClass.*;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.StrictMode;
@@ -25,7 +25,6 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
-import com.mad.lib.Restaurateur;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;

@@ -19,11 +19,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import static android.view.View.VISIBLE;
 import static android.view.View.INVISIBLE;
 import static com.mad.lib.SharedClass.RESERVATION_PATH;

@@ -1,18 +1,11 @@
 package com.mad.customer;
 
-import static com.mad.lib.SharedClass.Address;
-import static com.mad.lib.SharedClass.CUSTOMER_PATH;
-import static com.mad.lib.SharedClass.Description;
-import static com.mad.lib.SharedClass.Mail;
-import static com.mad.lib.SharedClass.Name;
-import static com.mad.lib.SharedClass.Phone;
-import static com.mad.lib.SharedClass.Photo;
-import static com.mad.lib.SharedClass.ROOT_UID;
-import static com.mad.lib.SharedClass.Time;
-import static com.mad.lib.SharedClass.user;
+import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
+import static com.mad.mylibrary.SharedClass.ROOT_UID;
 
 import com.bumptech.glide.Glide;
-import com.mad.lib.User;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.mad.mylibrary.User;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -36,9 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -105,21 +96,16 @@ public class Profile extends Fragment {
                 ((TextView) view.findViewById(R.id.mail)).setText(user.getEmail());
                 ((TextView) view.findViewById(R.id.phone)).setText(user.getPhone());
                 ((TextView) view.findViewById(R.id.address)).setText(user.getAddr());
-                ImageView imageView = view.findViewById(R.id.profile_image);
 
-                InputStream inputStream = null;
-                try {
-                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                    StrictMode.setThreadPolicy(policy);
-
-                    inputStream = new URL(user.getPhotoPath()).openStream();
-                    if (inputStream != null)
-                        Glide.with(getContext()).load(user.getPhotoPath()).into((ImageView) view.findViewById(R.id.profile_image));
-                    else
-                        ((ImageView) view.findViewById(R.id.profile_image)).setImageResource(R.drawable.person);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                if(user.getPhotoPath() != null)
+                    Glide.with(Objects.requireNonNull(view.getContext()))
+                            .load(user.getPhotoPath())
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .into((ImageView)view.findViewById(R.id.profile_image));
+                else
+                    Glide.with(Objects.requireNonNull(view.getContext()))
+                            .load(R.drawable.person)
+                            .into((ImageView)view.findViewById(R.id.profile_image));
             }
 
             @Override

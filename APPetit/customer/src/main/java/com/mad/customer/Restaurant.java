@@ -1,8 +1,8 @@
 package com.mad.customer;
 
-import static com.mad.lib.SharedClass.*;
+import static com.mad.mylibrary.SharedClass.*;
 import com.firebase.ui.database.SnapshotParser;
-import com.mad.lib.Restaurateur;
+import com.mad.mylibrary.Restaurateur;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

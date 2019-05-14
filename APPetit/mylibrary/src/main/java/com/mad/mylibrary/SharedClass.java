@@ -1,4 +1,6 @@
-package com.mad.lib;
+package com.mad.mylibrary;
+
+import java.io.File;
 
 public final class SharedClass {
     /**

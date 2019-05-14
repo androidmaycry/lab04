@@ -1,12 +1,9 @@
 package com.mad.customer;
 
 import com.bumptech.glide.Glide;
-import com.mad.lib.User;
+import com.mad.mylibrary.User;
 
-import static com.mad.lib.SharedClass.PERMISSION_GALLERY_REQUEST;
-import static com.mad.lib.SharedClass.RESTAURATEUR_INFO;
-import static com.mad.lib.SharedClass.ROOT_UID;
-import static com.mad.lib.SharedClass.CUSTOMER_PATH;
+import static com.mad.mylibrary.SharedClass.*;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -17,7 +14,6 @@ import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -31,36 +27,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class SignUp extends AppCompatActivity {
-    private static final String MyPREF = "User_Data";
-    private static final String CheckPREF = "First Run";
-    private static final String Name = "keyName";
-    private static final String Address = "keyAddress";
-    private static final String Description = "keyDescription";
-    private static final String Email = "keyEmail";
-    private static final String Phone = "keyPhone";
-    private static final String Photo = "keyPhoto";
-    private static final String FirstRun = "keyRun";
-    private static final String DialogOpen ="keyDialog";
-
-    private static final int PERMISSION_GALLERY_REQUEST = 1;
     private boolean dialog_open = false;
 
     private String name;
@@ -79,11 +58,9 @@ public class SignUp extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        database = FirebaseDatabase.getInstance();
-
         setContentView(R.layout.activity_sign_up);
 
+        database = FirebaseDatabase.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
         Button confirm_reg = findViewById(R.id.back_order_button);
@@ -92,7 +69,6 @@ public class SignUp extends AppCompatActivity {
                 auth.createUserWithEmailAndPassword(mail,psw).addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         ROOT_UID = auth.getUid();
-
                         uploadImage();
                     }
                     else {
@@ -117,8 +93,6 @@ public class SignUp extends AppCompatActivity {
         progressDialog.show();
 
         if(currentPhotoPath != null) {
-            Log.d("Uploading", "img ok");
-            Log.d("PHOTO PATH",currentPhotoPath);
             Uri url = Uri.fromFile(new File(currentPhotoPath));
             StorageReference storageReference = FirebaseStorage.getInstance().getReference();
             StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
@@ -202,7 +176,7 @@ public class SignUp extends AppCompatActivity {
 
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
+                        "com.mad.costumer.fileprovider",
                         photoFile);
 
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -330,10 +304,10 @@ public class SignUp extends AppCompatActivity {
 
         savedInstanceState.putString(Name, ((EditText)findViewById(R.id.name)).getText().toString());
         savedInstanceState.putString(Address, ((EditText)findViewById(R.id.surname)).getText().toString());
-        savedInstanceState.putString(Email, ((EditText)findViewById(R.id.mail)).getText().toString());
+        savedInstanceState.putString(Mail, ((EditText)findViewById(R.id.mail)).getText().toString());
         savedInstanceState.putString(Phone, ((EditText)findViewById(R.id.phone2)).getText().toString());
         savedInstanceState.putString(Photo, currentPhotoPath);
-        savedInstanceState.putBoolean(DialogOpen, dialog_open);
+        savedInstanceState.putBoolean(CameraOpen, dialog_open);
     }
 
     @Override
@@ -342,14 +316,14 @@ public class SignUp extends AppCompatActivity {
 
         ((EditText)findViewById(R.id.name)).setText(savedInstanceState.getString(Name));
         ((EditText)findViewById(R.id.surname)).setText(savedInstanceState.getString(Address));
-        ((EditText)findViewById(R.id.mail)).setText(savedInstanceState.getString(Email));
+        ((EditText)findViewById(R.id.mail)).setText(savedInstanceState.getString(Mail));
         ((EditText)findViewById(R.id.phone2)).setText(savedInstanceState.getString(Phone));
         currentPhotoPath = savedInstanceState.getString(Photo);
         if(currentPhotoPath != null){
             Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView) findViewById(R.id.img_profile));
         }
 
-        if(savedInstanceState.getBoolean(DialogOpen))
+        if(savedInstanceState.getBoolean(CameraOpen))
             editPhoto();
     }
 }

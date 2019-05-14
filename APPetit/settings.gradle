@@ -1,1 +1,1 @@
-include ':restaurateur', ':customer', ':riders', ':lib'
+include ':restaurateur', ':customer', ':riders', ':lib', ':mylibrary'

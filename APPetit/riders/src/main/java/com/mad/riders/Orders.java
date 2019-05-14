@@ -1,6 +1,7 @@
 package com.mad.riders;
 
-import static com.mad.lib.SharedClass.*;
+import static com.mad.mylibrary.SharedClass.*;
+import com.mad.mylibrary.OrderItem;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +24,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mad.lib.OrderItem;
+
 
 import java.util.HashMap;
 import java.util.Map;

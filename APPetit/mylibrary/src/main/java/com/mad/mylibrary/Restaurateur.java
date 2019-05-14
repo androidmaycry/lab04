@@ -1,4 +1,4 @@
-package com.mad.lib;
+package com.mad.mylibrary;
 
 public final class Restaurateur{
     public String mail, name, addr, cuisine, openingTime, phone, photoUri;

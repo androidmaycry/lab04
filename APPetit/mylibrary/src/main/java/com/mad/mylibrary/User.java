@@ -1,4 +1,4 @@
-package com.mad.lib;
+package com.mad.mylibrary;
 
 public final class User{
     public String username;

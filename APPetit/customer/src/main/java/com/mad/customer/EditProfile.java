@@ -1,7 +1,7 @@
 package com.mad.customer;
 
 import com.bumptech.glide.Glide;
-import com.mad.lib.User;
+import com.mad.mylibrary.User;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.mad.lib.SharedClass.*;
+import static com.mad.mylibrary.SharedClass.*;
 
 public class EditProfile extends AppCompatActivity {
     private String name;

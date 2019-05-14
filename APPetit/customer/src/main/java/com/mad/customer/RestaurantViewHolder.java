@@ -5,9 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.mad.lib.Restaurateur;
+import com.mad.mylibrary.Restaurateur;
 import com.squareup.picasso.Picasso;
 
 public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

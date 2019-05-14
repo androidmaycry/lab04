@@ -7,7 +7,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
+// TODO: DELETE PICASSO
+//import com.squareup.picasso.Picasso;
 
 public class DishViewHolder extends RecyclerView.ViewHolder{ // implements View.OnClickListener
 
@@ -35,11 +36,11 @@ public class DishViewHolder extends RecyclerView.ViewHolder{ // implements View.
         this.name.setText(current.getName());
         this.desc.setText(current.getDesc());
         this.price.setText(price.toString());
-        Picasso.get()
+        /*Picasso.get()
                 .load(current.getPhotoUri())
                 .resize(150, 150)
                 .centerCrop()
-                .into(this.img);
+                .into(this.img);*/
         this.position = position;
         this.current = current;
     }

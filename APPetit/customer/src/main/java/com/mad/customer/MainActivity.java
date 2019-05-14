@@ -8,7 +8,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 
-import static com.mad.lib.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.ROOT_UID;
 
 public class MainActivity extends AppCompatActivity {
     private String email, password, errMsg;

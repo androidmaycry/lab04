@@ -1,6 +1,8 @@
 package com.mad.riders;
 
-import android.content.Intent;
+
+import static com.mad.mylibrary.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.RIDERS_PATH;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationItemView;
@@ -8,7 +10,6 @@ import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -20,46 +21,38 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static com.mad.lib.SharedClass.RESERVATION_PATH;
-import static com.mad.lib.SharedClass.RIDERS_PATH;
 
-public class NavApp extends AppCompatActivity implements
+
+public class FragmentManager extends AppCompatActivity implements
         Orders.OnFragmentInteractionListener,
         Home.OnFragmentInteractionListener,
         Profile.OnFragmentInteractionListener{
 
-
-    public String UID;
     public boolean value;
     private BottomNavigationView navigation;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = item ->  {
+            = item ->{
 
         switch (item.getItemId()) {
             case R.id.navigation_home:
                 checkBadge();
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Home()).commit();
-
                 return true;
 
             case R.id.navigation_profile:
                 Bundle bundle = new Bundle();
-                bundle.putString("UID",UID);
+                bundle.putString("UID",ROOT_UID);
                 Profile profile = new Profile();
                 profile.setArguments(bundle);
                 checkBadge();
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, profile).commit();
                 return true;
+
             case R.id.navigation_reservation:
                 Bundle bundle2 = new Bundle();
-                bundle2.putString("UID",UID);
+                bundle2.putString("UID",ROOT_UID);
                 if(value)
                     bundle2.putString("STATUS","true");
                 else
@@ -81,13 +74,10 @@ public class NavApp extends AppCompatActivity implements
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        Intent i  = getIntent();
-        UID = i.getStringExtra("UID");
-
         value = true;
         /* TODO: DEBUG */
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference status = database.getReference(RIDERS_PATH+"/"+UID+"/available/");
+        DatabaseReference status = database.getReference(RIDERS_PATH+"/"+ROOT_UID+"/available/");
 
         status.addValueEventListener(new ValueEventListener() {
             @Override
@@ -109,9 +99,6 @@ public class NavApp extends AppCompatActivity implements
             addBadgeView();
             hideBadgeView();
         }
-
-
-        Log.d("UID",UID);
     }
 
     @Override
@@ -119,14 +106,13 @@ public class NavApp extends AppCompatActivity implements
 
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
     }
 
     private void checkBadge(){
-        Query query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH+"/"+UID+"/pending/");
+        Query query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH+"/"+ROOT_UID+"/pending/");
 
         query.addValueEventListener(new ValueEventListener() {
             @Override

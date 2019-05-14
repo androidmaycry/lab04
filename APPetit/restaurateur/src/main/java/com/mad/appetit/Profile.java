@@ -1,6 +1,7 @@
 package com.mad.appetit;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mad.lib.Restaurateur;
 
@@ -18,7 +19,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,9 +37,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Objects;
 
 /**
@@ -110,19 +108,15 @@ public class Profile extends Fragment {
                     ((TextView)view.findViewById(R.id.phone2)).setText(phone);
                     ((TextView)view.findViewById(R.id.time_text)).setText(time);
 
-                    try{
-                        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                        StrictMode.setThreadPolicy(policy);
-
-                        inputStream = new URL(photoUri).openStream();
-                        if(inputStream != null)
-                            Glide.with(Objects.requireNonNull(view.getContext())).load(photoUri).into((ImageView)view.findViewById(R.id.profile_image));
-                        else
-                            ((ImageView)view.findViewById(R.id.profile_image)).setImageResource(R.drawable.person);
-                    }
-                    catch (IOException e){
-                        e.printStackTrace();
-                    }
+                    if(photoUri != null)
+                        Glide.with(Objects.requireNonNull(view.getContext()))
+                                .load(photoUri)
+                                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                                .into((ImageView)view.findViewById(R.id.profile_image));
+                    else
+                        Glide.with(Objects.requireNonNull(view.getContext()))
+                                .load(R.drawable.person)
+                                .into((ImageView)view.findViewById(R.id.profile_image));
                 }
             }
 

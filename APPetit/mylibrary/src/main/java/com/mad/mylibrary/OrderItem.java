@@ -1,4 +1,4 @@
-package com.mad.lib;
+package com.mad.mylibrary;
 
 import java.util.ArrayList;
 

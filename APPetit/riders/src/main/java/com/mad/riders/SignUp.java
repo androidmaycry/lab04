@@ -1,6 +1,9 @@
 package com.mad.riders;
 
 import static com.mad.mylibrary.SharedClass.*;
+
+import com.mad.mylibrary.Utilities;
+import com.mad.mylibrary.User;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -42,45 +45,15 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-class User{
-    String username;
-    String name;
-    String surname;
-    String email;
-    String phone;
-    String photoPath;
 
-    public User(){
-        this.username = "Null";
-        this.name = "Null";
-        this.surname = "Null";
-        this.email = "Null";
-        this.phone = "Null";
-    }
-
-    public User(String username,String name, String surname, String email, String phone,String photoPath){
-        this.username = username;
-        this.name = name;
-        this.surname = surname;
-        this.email = email;
-        this.phone = phone;
-        this.photoPath = photoPath;
-    }
-
-    public String getUsername(){return username;}
-    public String getName(){return name;}
-    public String getSurname(){return surname;}
-    public String getEmail(){return email;}
-    public String getPhone(){return phone;}
-    public String getPhotoPath(){return photoPath;}
-}
-
-public class EditProfile extends AppCompatActivity {
+public class SignUp extends AppCompatActivity {
     private static final String MyPREF = "User_Data";
     private static final String CheckPREF = "First Run";
     private static final String Name = "keyName";
@@ -160,8 +133,21 @@ public class EditProfile extends AppCompatActivity {
             progressDialog.show();
 
             StorageReference ref = storageReference.child("images/").child("riders/").child(UID);
-            url = Uri.fromFile(new File(currentPhotoPath));
-            ref.putFile(url).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            File file = null;
+            try {
+               file =  Utilities.reizeImageFileWithGlide(currentPhotoPath);
+               Uri imageUri = Uri.fromFile(file);
+
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ref.putFile(Uri.fromFile(file)).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if (!task.isSuccessful()){
@@ -178,10 +164,11 @@ public class EditProfile extends AppCompatActivity {
 
                         Map<String, Object> new_user = new HashMap<String, Object>();
                         new_user.put("rider_info",new User("gallottino",name, surname
-                                ,mail,phone,downUri.toString()));
+                                ,mail,phone,null,downUri.toString()));
                         new_user.put("available",true);
                         DatabaseReference myRef = database.getReference(RIDERS_PATH +"/"+UID);
                         myRef.updateChildren(new_user);
+                        setResult(1);
                         finish();
                     }
                 }
@@ -190,18 +177,19 @@ public class EditProfile extends AppCompatActivity {
 
             Map<String, Object> new_user = new HashMap<String, Object>();
             new_user.put("rider_info",new User("gallottino",name, surname
-                    ,mail,phone,"null"));
+                    ,mail,phone,null,null));
             new_user.put("available",true);
             DatabaseReference myRef = database.getReference(RIDERS_PATH +"/"+UID);
             myRef.updateChildren(new_user);
+            setResult(1);
             finish();
         }
 
     }
 
     private void editPhoto(){
-        AlertDialog alertDialog = new AlertDialog.Builder(EditProfile.this, R.style.AlertDialogStyle).create();
-        LayoutInflater factory = LayoutInflater.from(EditProfile.this);
+        AlertDialog alertDialog = new AlertDialog.Builder(SignUp.this, R.style.AlertDialogStyle).create();
+        LayoutInflater factory = LayoutInflater.from(SignUp.this);
         final View view = factory.inflate(R.layout.custom_dialog, null);
 
         dialog_open = true;

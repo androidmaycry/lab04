@@ -1,9 +1,6 @@
 package com.mad.customer;
 
-import com.mad.lib.User;
-import com.mad.lib.SharedClass.*;
-
-import com.mad.lib.OrderItem;
+import com.mad.mylibrary.OrderItem;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,11 +23,10 @@ import com.google.firebase.database.Query;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.mad.lib.SharedClass.ACCEPTED_ORDER_PATH;
-import static com.mad.lib.SharedClass.RESERVATION_PATH;
-import static com.mad.lib.SharedClass.RESTAURATEUR_INFO;
-import static com.mad.lib.SharedClass.TimeOpen;
-import static com.mad.lib.SharedClass.user;
+import static com.mad.mylibrary.SharedClass.RESERVATION_PATH;
+import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
+import static com.mad.mylibrary.SharedClass.TimeOpen;
+import static com.mad.mylibrary.SharedClass.user;
 
 public class Confirm extends AppCompatActivity {
 

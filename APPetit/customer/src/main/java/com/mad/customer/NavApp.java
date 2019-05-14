@@ -1,8 +1,8 @@
 package com.mad.customer;
 
-import static com.mad.lib.SharedClass.CUSTOMER_PATH;
-import static com.mad.lib.SharedClass.user;
-import static com.mad.lib.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.CUSTOMER_PATH;
+import static com.mad.mylibrary.SharedClass.user;
+import static com.mad.mylibrary.SharedClass.ROOT_UID;
 
 import android.net.Uri;
 import android.support.design.widget.BottomNavigationView;
@@ -16,7 +16,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mad.lib.User;
+import com.mad.mylibrary.User;
 
 public class NavApp extends AppCompatActivity implements
         Restaurant.OnFragmentInteractionListener,

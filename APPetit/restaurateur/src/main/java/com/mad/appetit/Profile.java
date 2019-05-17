@@ -3,17 +3,17 @@ package com.mad.appetit;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
-import com.mad.lib.Restaurateur;
+import com.mad.mylibrary.Restaurateur;
 
-import static com.mad.lib.SharedClass.Address;
-import static com.mad.lib.SharedClass.Description;
-import static com.mad.lib.SharedClass.Mail;
-import static com.mad.lib.SharedClass.Name;
-import static com.mad.lib.SharedClass.Phone;
-import static com.mad.lib.SharedClass.Photo;
-import static com.mad.lib.SharedClass.RESTAURATEUR_INFO;
-import static com.mad.lib.SharedClass.ROOT_UID;
-import static com.mad.lib.SharedClass.Time;
+import static com.mad.mylibrary.SharedClass.Address;
+import static com.mad.mylibrary.SharedClass.Description;
+import static com.mad.mylibrary.SharedClass.Mail;
+import static com.mad.mylibrary.SharedClass.Name;
+import static com.mad.mylibrary.SharedClass.Phone;
+import static com.mad.mylibrary.SharedClass.Photo;
+import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
+import static com.mad.mylibrary.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.Time;
 
 import android.content.Context;
 import android.content.Intent;

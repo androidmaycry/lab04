@@ -26,6 +26,7 @@ public final class SharedClass {
      * Useful values key to retrieve data from activity (Intent)
      */
     public static final String EDIT_EXISTING_DISH = "DISH_NAME";
+    public static final String ORDER_ID = "ORDER_ID";
 
     /**
      * Permission values

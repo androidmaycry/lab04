@@ -1,9 +1,10 @@
 package com.mad.appetit;
 
-import static com.mad.lib.SharedClass.*;
-import com.mad.lib.OrderItem;
+import static com.mad.mylibrary.SharedClass.*;
+import com.mad.mylibrary.OrderItem;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -116,7 +117,10 @@ public class Reservation extends Fragment {
 
                 view.findViewById(R.id.confirm_reservation).setOnClickListener(e -> {
                     String id = ((TextView)view.findViewById(R.id.listview_name)).getText().toString();
-                    acceptOrder(id);
+
+                    Intent mapsIntent = new Intent(getContext(), MapsActivity.class);
+                    mapsIntent.putExtra(ORDER_ID, id);
+                    startActivity(mapsIntent);
                 });
 
                 view.findViewById(R.id.delete_reservation).setOnClickListener(h -> {
@@ -172,82 +176,6 @@ public class Reservation extends Fragment {
         recyclerView_accepted.setLayoutManager(layoutManager);
 
         return view;
-    }
-
-    public void acceptOrder(String id){
-        AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
-        LayoutInflater inflater = LayoutInflater.from(this.getContext());
-        final View view = inflater.inflate(R.layout.reservation_dialog, null);
-
-        view.findViewById(R.id.button_confirm).setOnClickListener(e -> {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            Query queryDel = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
-            + "/" + RESERVATION_PATH).orderByChild("name").equalTo(id);
-
-            queryDel.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        DatabaseReference acceptOrder = database.getReference(RESTAURATEUR_INFO + "/" + ROOT_UID
-                                + "/" + ACCEPTED_ORDER_PATH);
-                        Map<String, Object> orderMap = new HashMap<>();
-
-                        for (DataSnapshot d : dataSnapshot.getChildren()) {
-                            OrderItem reservationItem = d.getValue(OrderItem.class);
-                            orderMap.put(Objects.requireNonNull(acceptOrder.push().getKey()), reservationItem);
-                            d.getRef().removeValue();
-                        }
-
-                        acceptOrder.updateChildren(orderMap);
-
-                        // choosing the first available rider which assign the order
-                        Query queryRider = database.getReference(RIDERS_PATH);
-                        queryRider.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.exists()) {
-                                    String keyRider = "", name = "";
-
-                                    for(DataSnapshot d : dataSnapshot.getChildren()){
-                                        if((boolean)d.child("available").getValue()){
-                                            keyRider = d.getKey();
-                                            name = d.child("rider_info").child("name").getValue(String.class);
-                                            break;
-                                        }
-                                    }
-
-                                    DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + keyRider + RIDERS_ORDER);
-                                    addOrderToRider.updateChildren(orderMap);
-
-                                    Toast.makeText(getContext(), "Order assigned to rider " + name, Toast.LENGTH_LONG).show();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    Log.w("RESERVATION", "Failed to read value.", error.toException());
-                }
-            });
-
-            mAdapter.notifyDataSetChanged();
-
-            reservationDialog.dismiss();
-        });
-
-        view.findViewById(R.id.button_cancel).setOnClickListener(e -> reservationDialog.dismiss());
-
-        reservationDialog.setView(view);
-        reservationDialog.setTitle("Confirm Reservation?");
-
-        reservationDialog.show();
     }
 
     public void removeOrder(String id){

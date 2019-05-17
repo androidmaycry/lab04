@@ -3,17 +3,17 @@ package com.mad.appetit;
 import com.bumptech.glide.Glide;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.mad.lib.Restaurateur;
+import com.mad.mylibrary.Restaurateur;
 
-import static com.mad.lib.SharedClass.CameraOpen;
-import static com.mad.lib.SharedClass.Description;
-import static com.mad.lib.SharedClass.Name;
-import static com.mad.lib.SharedClass.PERMISSION_GALLERY_REQUEST;
-import static com.mad.lib.SharedClass.Photo;
-import static com.mad.lib.SharedClass.RESTAURATEUR_INFO;
-import static com.mad.lib.SharedClass.ROOT_UID;
-import static com.mad.lib.SharedClass.TimeClose;
-import static com.mad.lib.SharedClass.TimeOpen;
+import static com.mad.mylibrary.SharedClass.CameraOpen;
+import static com.mad.mylibrary.SharedClass.Description;
+import static com.mad.mylibrary.SharedClass.Name;
+import static com.mad.mylibrary.SharedClass.PERMISSION_GALLERY_REQUEST;
+import static com.mad.mylibrary.SharedClass.Photo;
+import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
+import static com.mad.mylibrary.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.TimeClose;
+import static com.mad.mylibrary.SharedClass.TimeOpen;
 
 import android.Manifest;
 import android.app.ProgressDialog;

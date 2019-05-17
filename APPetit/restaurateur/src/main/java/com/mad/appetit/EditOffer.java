@@ -1,6 +1,6 @@
 package com.mad.appetit;
 
-import static com.mad.lib.SharedClass.*;
+import static com.mad.mylibrary.SharedClass.*;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;

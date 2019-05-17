@@ -1,6 +1,6 @@
 package com.mad.appetit;
 
-import static com.mad.lib.SharedClass.*;
+import static com.mad.mylibrary.SharedClass.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -28,7 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.mad.lib.Restaurateur;
+import com.mad.mylibrary.Restaurateur;
 
 import java.io.File;
 import java.io.IOException;

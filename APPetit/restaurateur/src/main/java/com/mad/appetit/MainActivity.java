@@ -1,6 +1,6 @@
 package com.mad.appetit;
 
-import static  com.mad.lib.SharedClass.ROOT_UID;
+import static  com.mad.mylibrary.SharedClass.ROOT_UID;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;

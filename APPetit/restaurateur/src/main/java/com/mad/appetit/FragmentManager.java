@@ -21,9 +21,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import static android.view.View.VISIBLE;
 import static android.view.View.INVISIBLE;
-import static com.mad.lib.SharedClass.RESERVATION_PATH;
-import static com.mad.lib.SharedClass.RESTAURATEUR_INFO;
-import static com.mad.lib.SharedClass.ROOT_UID;
+import static com.mad.mylibrary.SharedClass.RESERVATION_PATH;
+import static com.mad.mylibrary.SharedClass.RESTAURATEUR_INFO;
+import static com.mad.mylibrary.SharedClass.ROOT_UID;
 
 public class FragmentManager extends AppCompatActivity implements DailyOffer.OnFragmentInteractionListener,
         Reservation.OnFragmentInteractionListener, Home.OnFragmentInteractionListener,

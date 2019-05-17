@@ -6,6 +6,7 @@ import com.mad.mylibrary.OrderItem;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -193,31 +194,43 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         }
                     }
 
-                    boolean first = true;
-                    for (Map.Entry<Double, String> entry : distanceMap.entrySet()) {
-                        if (first) {
-                            first = false;
+                    if(distanceMap.isEmpty()){
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
-                            mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).longitude, posMap.get(entry.getValue()).latitude))
-                                    .title(riderName.get(entry.getValue()))
-                                    .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
-                                    .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"))
-                                    .setTag(0);
+                        builder.setMessage("No riders available. Retry later!")
+                                .setCancelable(false)
+                                .setNeutralButton("Ok", (dialog, id) -> getActivity().finish());
 
-                            mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
-                        }
-                        else {
-                            mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).longitude, posMap.get(entry.getValue()).latitude))
-                                    .title(riderName.get(entry.getValue()))
-                                    .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"))
-                                    .setTag(0);
-
-                            mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
-                        }
+                        final AlertDialog alert = builder.create();
+                        alert.show();
                     }
+                    else{
+                        boolean first = true;
+                        for (Map.Entry<Double, String> entry : distanceMap.entrySet()) {
+                            if (first) {
+                                first = false;
 
-                    ((MapsActivity) getActivity()).saveDistanceMap(distanceMap);
-                    ((MapsActivity) getActivity()).saveRidersList(riderName);
+                                mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).longitude, posMap.get(entry.getValue()).latitude))
+                                        .title(riderName.get(entry.getValue()))
+                                        .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
+                                        .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"))
+                                        .setTag(0);
+
+                                mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
+                            }
+                            else {
+                                mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).longitude, posMap.get(entry.getValue()).latitude))
+                                        .title(riderName.get(entry.getValue()))
+                                        .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"))
+                                        .setTag(0);
+
+                                mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
+                            }
+                        }
+
+                        ((MapsActivity) getActivity()).saveDistanceMap(distanceMap);
+                        ((MapsActivity) getActivity()).saveRidersList(riderName);
+                    }
                 }
             }
 

@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(data != null && resultCode == 1){
+
             Intent fragment = new Intent(this, FragmentManager.class);
             startActivity(fragment);
             finish();

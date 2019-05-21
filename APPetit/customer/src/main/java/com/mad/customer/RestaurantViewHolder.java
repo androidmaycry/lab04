@@ -6,18 +6,19 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.mad.mylibrary.Restaurateur;
 import com.squareup.picasso.Picasso;
 
 public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-    TextView name;
-    TextView addr;
-    TextView cuisine;
-    TextView opening;
-    ImageView img;
-    int position;
-    Restaurateur current;
+    private TextView name;
+    private TextView addr;
+    private TextView cuisine;
+    private TextView opening;
+    private ImageView img;
+    private int position;
+    private Restaurateur current;
     private String key;
 
     public RestaurantViewHolder(View itemView){
@@ -36,12 +37,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder implements Vie
         this.addr.setText(current.getAddr());
         this.cuisine.setText(current.getCuisine());
         this.opening.setText(current.getOpeningTime());
-        if(current.getPhotoUri()!="") {
-            Picasso.get()
-                    .load(current.getPhotoUri())
-                    .resize(150, 150)
-                    .centerCrop()
-                    .into(this.img);
+        if(!current.getPhotoUri().equals("null")) {
+            Glide.with(itemView).load(current.getPhotoUri()).into(this.img);
         }
         this.position = position;
         this.current = current;

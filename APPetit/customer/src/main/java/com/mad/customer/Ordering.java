@@ -136,47 +136,35 @@ public class Ordering extends AppCompatActivity {
             @Override
             protected void onBindViewHolder(@NonNull ViewHolderDailyOffer holder, int position, @NonNull DishItem model) {
                 holder.setData(model, position);
+                TextView numView = holder.getView().findViewById(R.id.dish_num);
 
-                if(removed.contains(Integer.toString(position))) {
-                    ((EditText)holder.getView().findViewById(R.id.num)).setText("");
-                }
-
-                holder.getView().findViewById(R.id.confirm_dish).setOnClickListener(e->{
-                    EditText et = holder.getView().findViewById(R.id.num);
-                    String a = et.getText().toString();
-                    if (a.length()>0){
-                        int num = Integer.parseInt(et.getText().toString());
-                        if (num>model.getQuantity()){
-                            Toast.makeText(holder.getView().getContext(), "Max available quantity: "+model.getQuantity(), Toast.LENGTH_LONG).show();
-                        }
-                        else{
-                            String key = getRef(position).getKey();
-                            if(!keys.contains(key)) {
-                                names.add(model.getName());
-                                nums.add(a);
-                                prices.add(Float.toString(model.getPrice()));
-                                keys.add(key);
-                                Toast.makeText(holder.getView().getContext(), "Added correctly", Toast.LENGTH_LONG).show();
-                                if (keys.size() == 1) {
-                                    findViewById(R.id.button2).setBackgroundColor(Color.GREEN); //TODO cambiare tonalità verde
-                                }
-                            }
-                            else{
-                                int pos = keys.indexOf(key);
-                                int new_num = Integer.parseInt(nums.get(pos));
-                                if (new_num>model.getQuantity()){
-                                    Toast.makeText(holder.getView().getContext(), "Max available quantity: "+model.getQuantity() + "\nGià selezionati: "+Integer.parseInt(nums.get(pos)), Toast.LENGTH_LONG).show();
-
-                                }
-                                else{
-                                    nums.set(pos, Integer.toString(new_num));
-                                    Toast.makeText(holder.getView().getContext(), "Updated correctly", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        }
+                holder.getView().findViewById(R.id.add_dish).setOnClickListener(a->{
+                    Integer num = Integer.parseInt((numView).getText().toString());
+                    num++;
+                    if(num>model.getQuantity()){
+                        Toast.makeText(holder.getView().getContext(), "Maximum quantity exceeded", Toast.LENGTH_LONG).show();
+                    }
+                    else if (num>99){
+                        Toast.makeText(holder.getView().getContext(), "Contact us to get more than this quantity", Toast.LENGTH_LONG).show();
                     }
                     else{
-                        Toast.makeText(holder.getView().getContext(), "Insert quantity", Toast.LENGTH_LONG).show();
+                        numView.setText(num.toString());
+                        AddDish(key, model.getName(),Float.toString(model.getPrice()),"add");
+                    }
+                });
+                holder.getView().findViewById(R.id.delete_dish).setOnClickListener(b->{
+
+                    Integer num = Integer.parseInt((numView).getText().toString());
+                    num--;
+                    if(num<0){
+                        Toast.makeText(holder.getView().getContext(), "Please select the right quantity", Toast.LENGTH_LONG).show();
+                    }
+                    else{
+                        numView.setText(num.toString());
+                        AddDish(key, model.getName(),Float.toString(model.getPrice()),"remove");
+                    }
+                    if(keys.isEmpty()){
+                        //holder.getView().findViewById(R.id.button2).setBackgroundColor();
                     }
                 });
             }
@@ -288,6 +276,33 @@ public class Ordering extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void AddDish(String key, String name, String price, String mode){
+        if(keys.contains(key) && mode.equals("add")){
+            int i = keys.indexOf(key);
+            Integer num = Integer.parseInt(nums.get(i))+1;
+            nums.set(i, num.toString());
+        }
+        else if(keys.contains(key) && mode.equals("remove")){
+            int i = keys.indexOf(key);
+            Integer num = Integer.parseInt(nums.get(i))-1;
+            if(num.equals(0)){
+                keys.remove(i);
+                nums.remove(i);
+                names.remove(i);
+                prices.remove(i);
+            }
+            else {
+                nums.set(i, num.toString());
+            }
+        }
+        else{
+            keys.add(key);
+            nums.add("1");
+            names.add(name);
+            prices.add(price);
+        }
     }
 }
 

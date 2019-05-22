@@ -1,16 +1,21 @@
 package com.mad.customer;
 
 import static com.mad.mylibrary.SharedClass.*;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -81,6 +87,7 @@ class ViewHolderDailyOffer extends RecyclerView.ViewHolder {
 }
 
 public class Ordering extends AppCompatActivity {
+    Menu mymenu;
     private String key;
     private String restAddr;
     private String restPhoto;
@@ -97,12 +104,11 @@ public class Ordering extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ordering);
         recyclerView = findViewById(R.id.dish_recyclerview);
-        //recyclerView.setHasFixedSize(true);
+
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-
         getIncomingIntent();
 
         FirebaseRecyclerOptions<DishItem> options =
@@ -137,7 +143,7 @@ public class Ordering extends AppCompatActivity {
             protected void onBindViewHolder(@NonNull ViewHolderDailyOffer holder, int position, @NonNull DishItem model) {
                 holder.setData(model, position);
                 TextView numView = holder.getView().findViewById(R.id.dish_num);
-
+                String dish_key = getRef(position).getKey();
                 holder.getView().findViewById(R.id.add_dish).setOnClickListener(a->{
                     Integer num = Integer.parseInt((numView).getText().toString());
                     num++;
@@ -149,7 +155,12 @@ public class Ordering extends AppCompatActivity {
                     }
                     else{
                         numView.setText(num.toString());
-                        AddDish(key, model.getName(),Float.toString(model.getPrice()),"add");
+                        AddDish(dish_key, model.getName(),Float.toString(model.getPrice()),"add");
+                        invalidateOptionsMenu();
+                    }
+                    if(!keys.isEmpty()){
+                        findViewById(R.id.next).setBackgroundColor(Color.parseColor("#5aad54"));
+
                     }
                 });
                 holder.getView().findViewById(R.id.delete_dish).setOnClickListener(b->{
@@ -161,10 +172,11 @@ public class Ordering extends AppCompatActivity {
                     }
                     else{
                         numView.setText(num.toString());
-                        AddDish(key, model.getName(),Float.toString(model.getPrice()),"remove");
+                        AddDish(dish_key, model.getName(),Float.toString(model.getPrice()),"remove");
+                        invalidateOptionsMenu();
                     }
                     if(keys.isEmpty()){
-                        //holder.getView().findViewById(R.id.button2).setBackgroundColor();
+                        findViewById(R.id.next).setBackgroundColor(Color.parseColor("#c1c1c1"));
                     }
                 });
             }
@@ -178,7 +190,7 @@ public class Ordering extends AppCompatActivity {
             }
         };
         recyclerView.setAdapter(mAdapter);
-        findViewById(R.id.button2).setOnClickListener(w->{
+        findViewById(R.id.next).setOnClickListener(w->{
             if (keys.size()==0){
                 Toast.makeText(this, "Inserire un piatto.", Toast.LENGTH_LONG);
             }
@@ -263,6 +275,30 @@ public class Ordering extends AppCompatActivity {
         super.onStop();
         mAdapter.stopListening();
     }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if(keys.size()!=0) {
+            MenuItem menuItem = (MenuItem) menu.findItem(R.id.action_custom_button);
+            TextView cart = menuItem.getActionView().findViewById(R.id.money);
+            int num = 0;
+            for (String a : nums){
+                num += Integer.parseInt(a);
+            }
+            String snum = Integer.toString(num);
+            String tot = calcoloTotale(prices, nums);
+            cart.setText(snum+" | "+tot+"€");
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.ordering, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -274,6 +310,7 @@ public class Ordering extends AppCompatActivity {
         if (id == android.R.id.home) {
             this.finish();
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -303,6 +340,15 @@ public class Ordering extends AppCompatActivity {
             names.add(name);
             prices.add(price);
         }
+    }
+    private String calcoloTotale (ArrayList<String> prices, ArrayList<String> nums){
+        float tot=0;
+        for(int i=0; i<prices.size(); i++){
+            float price = Float.parseFloat(prices.get(i));
+            float num = Float.parseFloat(nums.get(i));
+            tot=tot+(price*num);
+        }
+        return Float.toString(tot);
     }
 }
 

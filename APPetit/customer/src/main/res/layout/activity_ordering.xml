@@ -22,7 +22,7 @@
         tools:layout_editor_absoluteY="280dp" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/next"
         android:layout_width="300dp"
         android:layout_gravity="center"
         android:layout_height="wrap_content"

@@ -10,7 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
@@ -30,7 +32,6 @@ import static com.mad.mylibrary.SharedClass.user;
 
 public class Confirm extends AppCompatActivity {
 
-    private ArrayList<String> removed = new ArrayList<>();
     private String time = "";
     private String tot;
     private String restAddr;
@@ -51,31 +52,27 @@ public class Confirm extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm);
-
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getIncomingIntent();
         desiredTimeButton =  findViewById(R.id.desired_time);
         desiredTimeButton.setOnClickListener(l->{setDesiredTimeDialog();});
         findViewById(R.id.confirm_order_button).setOnClickListener(e->{
-            //time = ((EditText)findViewById(R.id.time_edit)).getText().toString();
             if(desiredTime.trim().length() > 0){
 
                 //TODO controlla formato orario
                 DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" +
                         key + RESERVATION_PATH);
                 HashMap<String, Object> orderMap = new HashMap<>();
-
+                Log.d("user", ""+names);
                 orderMap.put(myRef.push().getKey(), new OrderItem(user.getName(), user.getAddr(), restAddr, user.getPhone(), desiredTime,tot, user.getPhotoPath(), names));
                 myRef.updateChildren(orderMap);
-
+                Toast.makeText(this, "Order confirmed", Toast.LENGTH_LONG).show();
                 setResult(1);
                 finish();
             }
             else
                 Toast.makeText(this, "Please select desired time", Toast.LENGTH_LONG).show();
-        });
-        findViewById(R.id.back_order_button).setOnClickListener(w->{
-            setRemovedItem();
-            finish();
         });
     }
 
@@ -94,9 +91,7 @@ public class Confirm extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(layoutManager);
 
-        tot =calcoloTotale(prices, nums);
-        TextView totale = findViewById(R.id.totale);
-        totale.setText(tot + " €");
+        updatePrice();
     }
 
     private String calcoloTotale (ArrayList<String> prices, ArrayList<String> nums){
@@ -109,17 +104,6 @@ public class Confirm extends AppCompatActivity {
         return Float.toString(tot);
     }
 
-    public void deleteItem (int index){
-        keys.remove(index);
-        removed.add(Integer.toString(index));
-        tot =calcoloTotale(prices, nums);
-        TextView totale = findViewById(R.id.totale);
-        totale.setText(tot + " €");
-        if (Float.parseFloat(tot) == 0){
-            setRemovedItem();
-            finish();
-        }
-    }
     private String[] setTimeValue(){
         String[] cent = new String[100];
         for(int i=0; i<100; i++){
@@ -174,17 +158,24 @@ public class Confirm extends AppCompatActivity {
 
         openingTimeDialog.show();
     }
+
     @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
-        setRemovedItem();
-        finish();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            saveAndGoBack();
+            this.finish();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
-    public void setRemovedItem(){
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra("removed", removed);
-        setResult(0, intent);
+    @Override
+    public void onBackPressed() {
+        saveAndGoBack();
+        super.onBackPressed();
+
     }
 
     @Override
@@ -201,4 +192,29 @@ public class Confirm extends AppCompatActivity {
         if(savedInstanceState.getBoolean(TimeOpen))
             setDesiredTimeDialog();
     }
+
+    public void updatePrice (){
+        tot =calcoloTotale(prices, nums);
+        TextView totale = findViewById(R.id.totale);
+        totale.setText(tot + " €");
+    }
+
+    public void removeItem (int pos){
+       keys.remove(pos);
+       updatePrice();
+       if (keys.isEmpty()){
+           saveAndGoBack();
+           finish();
+       }
+    }
+
+    public void saveAndGoBack (){
+        Intent intent = new Intent();
+        intent.putStringArrayListExtra("keys", (ArrayList<String>) keys);
+        intent.putStringArrayListExtra("names", (ArrayList<String>) names);
+        intent.putStringArrayListExtra("prices", (ArrayList<String>) prices);
+        intent.putStringArrayListExtra("nums", (ArrayList<String>) nums);
+        setResult(0, intent);
+    }
 }
+

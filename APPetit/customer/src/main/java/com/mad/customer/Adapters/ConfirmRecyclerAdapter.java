@@ -65,19 +65,28 @@ public class ConfirmRecyclerAdapter extends RecyclerView.Adapter<ConfirmRecycler
         myViewHolder.dish_name.setText(name);
         myViewHolder.dish_quant.setText(quantity);
         myViewHolder.dish_price.setText(price + " €");
-        myViewHolder.getView_item().findViewById(R.id.delete_conf_dish).setOnClickListener(e->{
-            removeItem(position);
+        myViewHolder.getView_item().findViewById(R.id.remove_conf_dish).setOnClickListener(e->{
+            changeItem(position);
         });
 
     }
-    private void removeItem(int index){
+    private void changeItem(int index){
 
-        names.remove(index);
-        prices.remove(index);
-        quantities.remove(index);
-        notifyDataSetChanged();
-        //notifyItemRemoved(index);
-        confirm.deleteItem(index);
+
+        int num = Integer.parseInt(quantities.get(index));
+        num--;
+        if(num==0) {
+            names.remove(index);
+            prices.remove(index);
+            quantities.remove(index);
+            notifyDataSetChanged();
+            confirm.removeItem(index);
+        }
+        else{
+            quantities.set(index, Integer.toString(num));
+            notifyDataSetChanged();
+            confirm.updatePrice();
+        }
     }
 
 

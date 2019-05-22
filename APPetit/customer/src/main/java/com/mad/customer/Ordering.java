@@ -38,6 +38,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
+//TODO ci mette un po a partire.. why? forse glide?
+
 class ViewHolderDailyOffer extends RecyclerView.ViewHolder {
     private ImageView dishPhoto;
     private TextView dishName, dishDesc, dishPrice, dishQuantity;
@@ -144,6 +146,16 @@ public class Ordering extends AppCompatActivity {
                 holder.setData(model, position);
                 TextView numView = holder.getView().findViewById(R.id.dish_num);
                 String dish_key = getRef(position).getKey();
+                if(keys.contains(dish_key)){
+                    int pos = keys.indexOf(dish_key);
+                    String value_num = nums.get(pos);
+                    numView.setText(value_num);
+                    invalidateOptionsMenu();
+                }
+                else{
+                    numView.setText("0");
+                    invalidateOptionsMenu();
+                }
                 holder.getView().findViewById(R.id.add_dish).setOnClickListener(a->{
                     Integer num = Integer.parseInt((numView).getText().toString());
                     num++;
@@ -211,18 +223,14 @@ public class Ordering extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(data != null && resultCode == 0){
-            removed = data.getStringArrayListExtra("removed");
-
-            for(String s : removed){
-                keys.remove(Integer.parseInt(s));
-                names.remove(Integer.parseInt(s));
-                prices.remove(Integer.parseInt(s));
-                nums.remove(Integer.parseInt(s));
-            }
+        if (data != null && resultCode == 0) {
+            keys = data.getStringArrayListExtra("keys");
+            names = data.getStringArrayListExtra("names");
+            prices = data.getStringArrayListExtra("prices");
+            nums = data.getStringArrayListExtra("nums");
+            mAdapter.notifyDataSetChanged();
         }
-
-        if(resultCode == 1){
+        else if (resultCode==1){
             finish();
         }
     }
@@ -281,15 +289,20 @@ public class Ordering extends AppCompatActivity {
         if(keys.size()!=0) {
             MenuItem menuItem = (MenuItem) menu.findItem(R.id.action_custom_button);
             TextView cart = menuItem.getActionView().findViewById(R.id.money);
-            int num = 0;
-            for (String a : nums){
-                num += Integer.parseInt(a);
-            }
-            String snum = Integer.toString(num);
+            String snum = getQuantity(nums);
             String tot = calcoloTotale(prices, nums);
             cart.setText(snum+" | "+tot+"€");
         }
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    public String getQuantity (ArrayList<String> nums){
+        int num =0;
+        for (String a : nums){
+            num += Integer.parseInt(a);
+        }
+        String snum = Integer.toString(num);
+        return snum;
     }
 
     @Override

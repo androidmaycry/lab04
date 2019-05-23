@@ -80,7 +80,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
     private static final String ARG_PARAM2 = "param2";
 
     private  boolean available;
-    private boolean delivered;
+    private boolean restaurantReached;
 
     private DatabaseReference query1;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -128,7 +128,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         }
 
 
-        delivered = false;
+        restaurantReached = false;
         query1 = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + ROOT_UID)
                     .child("available");
         query1.addValueEventListener(new ValueEventListener() {
@@ -138,9 +138,15 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 available = (boolean) dataSnapshot.getValue();
                 if(!available){
                     Button btn = view.findViewById(R.id.accept_button);
-                    btn.setText("Restaurant Reached");
+                    btn.setText("Accept Order");
                     TextView text = view.findViewById(R.id.status);
-                    text.setText("Delivering...");
+                    text.setText("Pending..");
+                    text.setTextColor(200000);
+                }
+                else{
+
+                    TextView text = view.findViewById(R.id.status);
+                    text.setText("Available");
                 }
             }
 
@@ -149,6 +155,27 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
             }
         });
+
+        // BUTTON ACCEPTED ORDER
+        Button b = view.findViewById(R.id.accept_button);
+        b.setOnClickListener(e->{
+            if(available)
+                acceptOrder();
+            else{
+                if(!restaurantReached){
+                    restaurantReached = true;
+                    b.setText("Order delivered");
+                }
+                else{
+                    deliveredOrder();
+                    restaurantReached = true;
+                }
+            }
+        });
+        b.setText("No order pending");
+        b.setEnabled(false);
+
+
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference query = database
@@ -168,29 +195,23 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                     LatLng restaurantPos = getLocationFromAddress(restaurantAddr);
                     LatLng customerPos = getLocationFromAddress(customerAddress);
                     getLastKnownLocation(restaurantPos);
+
+                    if(order.getAddrCustomer().compareTo("")!= 0) {
+                        b.setText("Accept order");
+                        b.setEnabled(true);
+                    }
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
+                cancelOrderView(view);
+                b.setText("No order pending");
+                b.setEnabled(false);
             }
         });
 
-        // BUTTON ACCEPTED ORDER
-        view.findViewById(R.id.accept_button).setOnClickListener(e->{
-            if(available)
-                acceptOrder();
-            else{
-                if(!delivered){
-                    deliveredOrder();
-                    delivered = true;
-                }
-                else{
-                    changeDirectionMap();
-                }
-            }
-        });
 
         return view;
     }
@@ -211,6 +232,19 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         c_addr.setText(order.getAddrCustomer());
         time_text.setText(order.getTime());
         cash_text.setText(order.getTotPrice() + "$");
+    }
+
+    private void cancelOrderView(View view)
+    {
+        TextView r_addr = view.findViewById(R.id.restaurant_text);
+        TextView c_addr = view.findViewById(R.id.customer_text);
+        TextView time_text = view.findViewById(R.id.time_text);
+        TextView cash_text = view.findViewById(R.id.cash_text);
+
+        r_addr.setText("");
+        c_addr.setText("");
+        time_text.setText("");
+        cash_text.setText("");
     }
 
     public void acceptOrder(){
@@ -278,7 +312,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         });
 
         reservationDialog.setView(view);
-        reservationDialog.setTitle("Order delivered?");
+        reservationDialog.setTitle("Order restaurantReached?");
 
         reservationDialog.show();
     }

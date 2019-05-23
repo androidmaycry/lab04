@@ -1,6 +1,14 @@
 package com.mad.appetit;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.mad.mylibrary.Restaurateur;
@@ -38,6 +46,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,8 +54,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -59,6 +70,10 @@ public class SignUp extends AppCompatActivity {
 
     private Button openingTimeButton;
     private Button closingTimeButton;
+    private Button address;
+
+    private double latitude;
+    private double longitude;
 
     private boolean camera_open = false;
     private boolean timeOpen_open = false;
@@ -69,7 +84,25 @@ public class SignUp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+
+        // Initialize Places.
+        Places.initialize(getApplicationContext(), "AIzaSyAAzAER-HprZhx5zvmEYIjVlJfYSHj2-G8");
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(this);
+        // Set the fields to specify which types of place data to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
+
         FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        address = findViewById(R.id.button_address);
+        address.setOnClickListener(l-> {
+
+// Start the autocomplete intent.
+            Intent intent = new Autocomplete.IntentBuilder(
+                    AutocompleteActivityMode.FULLSCREEN, fields)
+                    .build(this);
+            startActivityForResult(intent, 2);
+        });
 
         findViewById(R.id.plus).setOnClickListener(p -> editPhoto());
         findViewById(R.id.img_profile).setOnClickListener(e -> editPhoto());
@@ -103,7 +136,7 @@ public class SignUp extends AppCompatActivity {
         mail = ((EditText)findViewById(R.id.mail)).getText().toString();
         psw = ((EditText)findViewById(R.id.psw)).getText().toString();
         name = ((EditText)findViewById(R.id.name)).getText().toString();
-        addr = ((EditText)findViewById(R.id.address)).getText().toString();
+        addr = ((TextView)findViewById(R.id.address)).getText().toString();
         descr = ((EditText)findViewById(R.id.description)).getText().toString();
         phone = ((EditText)findViewById(R.id.time_text)).getText().toString();
 
@@ -359,12 +392,37 @@ public class SignUp extends AppCompatActivity {
         if((requestCode == 1 || requestCode == 2) && resultCode == RESULT_OK){
             Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView)findViewById(R.id.img_profile));
         }
+
+        if (requestCode == 2) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+
+                latitude = place.getLatLng().latitude;
+                longitude = place.getLatLng().longitude;
+
+                address.setVisibility(View.INVISIBLE);
+                TextView address = findViewById(R.id.address);
+                address.setVisibility(View.VISIBLE);
+                address.setText(place.getAddress());
+
+                Log.i("TAG", "Place: " + place.getAddress());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i("TAG", status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
     }
+
+
 
     public void storeDatabase(){
         final ProgressDialog progressDialog = new ProgressDialog(this);
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO + "/" + ROOT_UID);
         Map<String, Object> restMap = new HashMap<>();
+        Map<String, Object> posInfoMap = new HashMap<>();
 
         progressDialog.setTitle("Creating profile...");
         progressDialog.show();
@@ -402,6 +460,9 @@ public class SignUp extends AppCompatActivity {
             setResult(1, i);
             finish();
         }
+
+        posInfoMap.put("info_pos", new LatLng(latitude, longitude));
+        myRef.updateChildren(posInfoMap);
     }
 
     @Override

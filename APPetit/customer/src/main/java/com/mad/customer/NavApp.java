@@ -64,6 +64,7 @@ public class NavApp extends AppCompatActivity implements
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 user = dataSnapshot.child("customer_info").getValue(User.class);
+                Log.d("user", ""+user);
             }
 
             @Override

@@ -2,11 +2,11 @@ package com.mad.appetit;
 
 import static com.mad.mylibrary.SharedClass.*;
 
+import com.google.android.gms.maps.model.Marker;
 import com.mad.mylibrary.OrderItem;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -46,6 +46,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -109,9 +110,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     //default location
     private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
 
+    private double longitude, latitude;
+
     private HashMap<String, Position> posMap;
     private HashMap<String, String> riderName;
     private TreeMap<Double, String> distanceMap;
+    private HashMap <String, Marker> markerMap = new HashMap<>();;
+    private HashSet<String> riderKey = new HashSet<>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -165,16 +170,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        //mMap.addMarker(new MarkerOptions().position(new LatLng(45.071067, 7.651352)).title("PORCODIO SONO QUI")).setTag(0);
-        /*// Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
-
         updateLocationUI();
         getDeviceLocation();
 
-        Query query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH);
+        Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO +"/"+ROOT_UID).child("info_pos");
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    latitude = dataSnapshot.getValue(Position.class).latitude;
+                    longitude = dataSnapshot.getValue(Position.class).longitude;
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH);
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -183,14 +198,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     posMap = new HashMap<>();
                     riderName = new HashMap<>();
 
-                    double hereStartLat = 7.653201;
-                    double hereStartLng = 45.0699094;
-
                     for(DataSnapshot d : dataSnapshot.getChildren()){
                         if((boolean)d.child("available").getValue()){
                             riderName.put(d.getKey(), d.child("rider_info").child("name").getValue(String.class));
                             posMap.put(d.getKey(), d.child("rider_pos").getValue(Position.class));
-                            distanceMap.put(Haversine.distance(hereStartLat, hereStartLng, posMap.get(d.getKey()).latitude, posMap.get(d.getKey()).longitude), d.getKey());
+                            distanceMap.put(Haversine.distance(latitude, longitude, posMap.get(d.getKey()).latitude, posMap.get(d.getKey()).longitude), d.getKey());
                         }
                     }
 
@@ -207,24 +219,38 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     else{
                         boolean first = true;
                         for (Map.Entry<Double, String> entry : distanceMap.entrySet()) {
-                            if (first) {
-                                first = false;
+                            Log.d("ENTRY", ""+riderKey.contains(entry.getValue()));
+                            if(!(riderKey.contains(entry.getValue()))) {
+                                riderKey.add(entry.getValue());
+                                if (first) {
+                                    first = false;
+                                    Log.d("HERE", "ciao");
+                                    Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude))
+                                            .title(riderName.get(entry.getValue()))
+                                            .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
+                                            .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"));
+                                    markerMap.put(entry.getValue(), m);
+                                    mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
+                                } else {
+                                    Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude))
+                                            .title(riderName.get(entry.getValue()))
+                                            .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"));
 
-                                mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).longitude, posMap.get(entry.getValue()).latitude))
-                                        .title(riderName.get(entry.getValue()))
-                                        .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
-                                        .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"))
-                                        .setTag(0);
-
-                                mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
+                                    markerMap.put(entry.getValue(), m);
+                                    mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
+                                }
                             }
-                            else {
-                                mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).longitude, posMap.get(entry.getValue()).latitude))
-                                        .title(riderName.get(entry.getValue()))
-                                        .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"))
-                                        .setTag(0);
-
-                                mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
+                            else{
+                                if(first){
+                                    first = false;
+                                    Log.d("PROVA", ""+markerMap.get(entry.getValue()));
+                                    markerMap.get(entry.getValue()).setPosition(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude));
+                                    markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)));
+                                }
+                                else{
+                                    markerMap.get(entry.getValue()).setPosition(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude));
+                                    markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("hamburger", 130, 130)));
+                                }
                             }
                         }
 
@@ -279,12 +305,17 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                                         if(d.getKey().equals(riderId)){
                                             keyRider = d.getKey();
                                             name = d.child("rider_info").child("name").getValue(String.class);
+
                                             break;
                                         }
                                     }
 
                                     DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + keyRider + RIDERS_ORDER);
                                     addOrderToRider.updateChildren(orderMap);
+
+                                    //setting to 'false' boolean variable of rider
+                                    DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + keyRider + "/available");
+                                    setFalse.setValue(false);
 
                                     Toast.makeText(getContext(), "Order assigned to rider " + name, Toast.LENGTH_LONG).show();
 
@@ -358,7 +389,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         mMap.addCircle(new CircleOptions()
                                 .center(new LatLng(mLastKnownLocation.getLatitude(),
                                         mLastKnownLocation.getLongitude()))
-                                .radius(1000)
+                                .radius(10000)
                                 .strokeColor(0xFFBC7362)
                                 .fillColor(0x32FFC8C8));
                         /*HashMap<String, Object> mapsMap = new HashMap<>();

@@ -231,7 +231,7 @@ public class Reservation extends Fragment {
             query = database.getReference().child(RESTAURATEUR_INFO + "/" + ROOT_UID
                     + "/" + ACCEPTED_ORDER_PATH).orderByChild("name").equalTo(id);
 
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){

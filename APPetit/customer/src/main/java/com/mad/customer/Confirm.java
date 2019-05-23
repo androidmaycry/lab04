@@ -65,6 +65,7 @@ public class Confirm extends AppCompatActivity {
                         key + RESERVATION_PATH);
                 HashMap<String, Object> orderMap = new HashMap<>();
                 Log.d("user", ""+names);
+                Log.d("test", restAddr);
                 orderMap.put(myRef.push().getKey(), new OrderItem(user.getName(), user.getAddr(), restAddr, user.getPhone(), desiredTime,tot, user.getPhotoPath(), names));
                 myRef.updateChildren(orderMap);
                 Toast.makeText(this, "Order confirmed", Toast.LENGTH_LONG).show();

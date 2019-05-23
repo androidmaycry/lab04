@@ -184,6 +184,7 @@ public class Restaurant extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 onStop();
+                entryChipGroup.setVisibility(View.INVISIBLE);
                 if(newText.length()==0){
                     options =
                             new FirebaseRecyclerOptions.Builder<Restaurateur>()

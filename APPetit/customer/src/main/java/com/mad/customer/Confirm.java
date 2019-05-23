@@ -1,5 +1,6 @@
 package com.mad.customer;
 
+import com.mad.customer.Adapters.ConfirmRecyclerAdapter;
 import com.mad.mylibrary.OrderItem;
 
 import android.content.DialogInterface;
@@ -18,7 +19,6 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;

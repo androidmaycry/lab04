@@ -7,23 +7,5 @@
         android:icon="@drawable/ic_search"
         app:showAsAction="always"
         app:actionViewClass="android.widget.SearchView" />
-    <item
-        android:id="@+id/cuisine_ita"
-        android:orderInCategory="100"
-        android:title="Italian"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/cuisine_jap"
-        android:orderInCategory="100"
-        android:title="Japanese"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/cuisine_fra"
-        android:orderInCategory="100"
-        android:title="French"
-        app:showAsAction="never" />
-
-
 
 </menu>

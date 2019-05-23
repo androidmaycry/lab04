@@ -6,7 +6,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android" >
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         tools:context=".SignUp">
 
         <EditText
@@ -53,16 +53,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/description" />
 
-        <EditText
+        <TextView
             android:id="@+id/address"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="325dp"
+            android:layout_height="36dp"
             android:layout_marginStart="44dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="44dp"
             android:ems="10"
             android:hint="Restaurant address"
             android:inputType="textPersonName|textCapWords|textMultiLine"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/name" />
@@ -163,6 +164,19 @@
             app:layout_constraintBottom_toTopOf="@+id/button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/time_text" />
+
+        <Button
+            android:id="@+id/button_address"
+            android:layout_width="296dp"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:color="@color/colorPrimary"
+            android:text="Insert address"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/name" />
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.mad.mylibrary.Restaurateur;
-import com.squareup.picasso.Picasso;
 
 public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 

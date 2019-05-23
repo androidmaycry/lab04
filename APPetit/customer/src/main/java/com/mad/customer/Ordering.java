@@ -31,7 +31,6 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -264,10 +263,8 @@ public class Ordering extends AppCompatActivity {
         mopening.setText(opening);
 
         if(img.length() != 0) {
-            Picasso.get()
+            Glide.with(getApplicationContext())
                     .load(img)
-                    .resize(150, 150)
-                    .centerCrop()
                     .into(mimg);
         }
 

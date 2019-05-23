@@ -4,7 +4,6 @@
     <string name="title_profile">Profile</string>
     <string name="title_dailyoffer">Daily Offer</string>
     <string name="title_reservation">Reservation</string>
-    <string name="google_maps_key">AIzaSyAAzAER-HprZhx5zvmEYIjVlJfYSHj2-G8</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="time">Reservation time:</string>

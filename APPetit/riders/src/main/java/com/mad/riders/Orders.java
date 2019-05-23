@@ -81,6 +81,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
     private  boolean available;
     private boolean restaurantReached;
+    private OrderItem order;
 
     private DatabaseReference query1;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -165,16 +166,19 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 if(!restaurantReached){
                     restaurantReached = true;
                     b.setText("Order delivered");
+                    String customerAddr = order.getAddrCustomer();
+                    mMap.clear();
+                    getLastKnownLocation(getLocationFromAddress(customerAddr));
                 }
                 else{
                     deliveredOrder();
                     restaurantReached = true;
+                    //getLastKnownLocation(getLocationFromAddress(""));
                 }
             }
         });
         b.setText("No order pending");
         b.setEnabled(false);
-
 
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -185,7 +189,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for(DataSnapshot d : dataSnapshot.getChildren()) {
-                    OrderItem order = d.getValue(OrderItem.class);
+                    order = d.getValue(OrderItem.class);
                     setOrderView(view,order);
                     String restaurantAddr = order.getAddrRestaurant();
                     String customerAddress = order.getAddrCustomer();
@@ -303,7 +307,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             Map<String, Object> status = new HashMap<String, Object>();
             status.put("available", true);
             query2.updateChildren(status);
-
+            mMap.clear();
             reservationDialog.dismiss();
         });
 

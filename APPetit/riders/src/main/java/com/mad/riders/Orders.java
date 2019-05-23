@@ -47,6 +47,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,73 +75,9 @@ import java.util.Map;
  * create an instance of this fragment.
  */
 
-class ViewHolder extends RecyclerView.ViewHolder {
-    public TextView restaurantAddr;
-    public TextView customerAdrr;
-    public TextView toPay;
-    public TextView orderStatus;
-    public View view;
 
-    public ViewHolder(View itemView) {
-        super(itemView);
-        restaurantAddr = itemView.findViewById(R.id.listview_address);
-        customerAdrr = itemView.findViewById(R.id.listview_name);
-        toPay = itemView.findViewById(R.id.listview_toPay);
-        orderStatus = itemView.findViewById(R.id.order_status);
-        view = itemView;
-    }
-
-
-    public void setRestaurantAddr(String string) {
-        restaurantAddr.setText(string);
-    }
-
-
-    public void setCustomerAdrr(String string) {
-        customerAdrr.setText(string);
-    }
-
-    public void setToPay(double toPay){
-        Double num = toPay;
-        this.toPay.setText(num.toString()+ "$");
-    }
-
-    public void setStatus(boolean status){
-        if(status){
-            orderStatus.setText("Pending...");
-        }
-        else{
-            orderStatus.setText("Delivering..");
-        }
-    }
-    public View getView(){return view;}
-}
-
-class Order{
-    public String orderID;
-    public String restaurantAddr;
-    public String customerAddr;
-    public double toPay;
-
-    // Constructor for Firebase
-    public Order(){}
-
-    public Order(String orderID,String RestaurantAddr,String CustomerAddr, double toPay){
-        this.orderID = orderID;
-        this.restaurantAddr = RestaurantAddr;
-        this.customerAddr = CustomerAddr;
-        this.toPay = toPay;
-    }
-
-    public String getRestaurantAddr(){return restaurantAddr;}
-    public void setRestaurantAddr(String restaurantAddr){ this.restaurantAddr = restaurantAddr;}
-    public String getCustomerAddr(){return customerAddr;}
-    public void setCustomerAddr(String customerAddr){ this.customerAddr = customerAddr;}
-    public double getToPay(){return toPay;}
-    public void setToPay(){this.toPay = toPay;}
-    public String getOrderID(){return orderID;}
-
-}
+//TODO: Fix MapView
+//TODO: Add dynamic button
 
 public class Orders extends Fragment implements OnMapReadyCallback {
 
@@ -148,39 +85,19 @@ public class Orders extends Fragment implements OnMapReadyCallback {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    private GoogleMap mMap;
-    int col = 0;
-
     private  boolean available;
+    private boolean delivered;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private RecyclerView.LayoutManager layoutManager;
-
-    private Orders.OnFragmentInteractionListener mListener;
-    private FirebaseRecyclerAdapter<Order, ViewHolder> mAdapter_done;
-    private FirebaseRecyclerAdapter<OrderItem, ViewHolder> mAdapter_pending;
-    private String UID;
-    private FirebaseRecyclerAdapter<Order, ViewHolder> mAdapter_accepted;
-    private LinearLayoutManager layoutManager2;
     private DatabaseReference query1;
     private FusedLocationProviderClient mFusedLocationClient;
     private GeoApiContext mGeoApiContext;
+    private GoogleMap mMap;
+    int col = 0;
 
     public Orders() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Orders.
-     */
     // TODO: Rename and change types and number of parameters
     public static Orders newInstance(String param1, String param2) {
         Orders fragment = new Orders();
@@ -194,10 +111,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
 
     }
 
@@ -213,33 +127,24 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
         if(mGeoApiContext == null){
-            mGeoApiContext = new GeoApiContext.Builder().apiKey(getString(R.string.google_maps_key)).build();
+            mGeoApiContext = new GeoApiContext.Builder().apiKey(getString(R.string.google_maps_key))
+                    .build();
         }
 
-        view.findViewById(R.id.delivered).setOnClickListener(e->{
-                deliveredOrder();
-        });
 
-        query1 = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + ROOT_UID);
-
+        delivered = false;
+        query1 = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + ROOT_UID)
+                    .child("available");
         query1.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot d : dataSnapshot.getChildren()){
-                    if(d.getKey().compareTo("available")== 0) {
-                        available = (boolean) d.getValue();
-                        Log.d("QUERY STATUS", Boolean.toString(available));
-                        if(available){
-                            view.findViewById(R.id.delivered).setVisibility(View.INVISIBLE);
-                            TextView text = view.findViewById(R.id.status);
-                            text.setText("Available");
-                        }
-                        else{
-                            TextView text = view.findViewById(R.id.status);
-                            text.setText("Delivering...");
-                            view.findViewById(R.id.delivered).setVisibility(View.VISIBLE);
-                        }
-                    }
+                //TODO: STATUS
+                available = (boolean) dataSnapshot.getValue();
+                if(!available){
+                    Button btn = view.findViewById(R.id.accept_button);
+                    btn.setText("Restaurant Reached");
+                    TextView text = view.findViewById(R.id.status);
+                    text.setText("Delivering...");
                 }
             }
 
@@ -248,16 +153,19 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
             }
         });
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference query = database.getReference(RIDERS_PATH + "/"+ROOT_UID+"/pending/");
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference query = database
+                .getReference(RIDERS_PATH + "/"+ROOT_UID+"/pending/");
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for(DataSnapshot d : dataSnapshot.getChildren()) {
-                    String restaurantAddr = (String) d.child("addrCustomer").getValue();
-                    String customerAddress = (String) d.child("addrRestaurant").getValue();
+                    OrderItem order = d.getValue(OrderItem.class);
+                    setOrderView(view,order);
+                    String restaurantAddr = order.getAddrRestaurant();
+                    String customerAddress = order.getAddrCustomer();
                     Log.d("QUERY", customerAddress);
                     Log.d("QUERY", restaurantAddr);
                     restaurantAddr = restaurantAddr + " Torino";
@@ -273,50 +181,40 @@ public class Orders extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        FirebaseRecyclerOptions<OrderItem> options =
-                new FirebaseRecyclerOptions.Builder<OrderItem>()
-                        .setQuery(query, OrderItem.class).build();
-
-        mAdapter_pending = new FirebaseRecyclerAdapter<OrderItem, ViewHolder>(options) {
-
-            @Override
-            public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                // Create a new instance of the ViewHolder, in this case we are using a custom
-                // layout called R.layout.message for each item
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.reservation_listview, parent, false);
-
-                return new ViewHolder(view);
+        // BUTTON ACCEPTED ORDER
+        view.findViewById(R.id.accept_button).setOnClickListener(e->{
+            if(available)
+                acceptOrder();
+            else{
+                if(!delivered){
+                    deliveredOrder();
+                    delivered = true;
+                }
+                else{
+                    changeDirectionMap();
+                }
             }
-
-            @Override
-            protected void onBindViewHolder(ViewHolder holder, int position, OrderItem model) {
-                // Bind the Chat object to the ChatHolder
-                // ...
-                holder.setCustomerAdrr(model.getAddrCustomer());
-                holder.setRestaurantAddr(model.getAddrRestaurant());
-                holder.setToPay(Double.parseDouble(model.totPrice));
-                holder.setStatus(available);
-                holder.getView().findViewById(R.id.confirm_reservation)
-                        .setOnClickListener(e -> acceptOrder());
-                holder.getView().findViewById(R.id.delete_reservation)
-                        .setOnClickListener(e -> deletingOrder());
-            }
-        };
-
-        layoutManager = new LinearLayoutManager(getContext());
-        RecyclerView recyclerView = view.findViewById(R.id.order_list_pending);
-        recyclerView.setAdapter(mAdapter_pending);
-        recyclerView.setLayoutManager(layoutManager);
+        });
 
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    private void changeDirectionMap() {
+        //calculateDirection();
+        //addPolylinesToMap();
+    }
+
+    private void setOrderView(View view,OrderItem order)
+    {
+        TextView r_addr = view.findViewById(R.id.restaurant_text);
+        TextView c_addr = view.findViewById(R.id.customer_text);
+        TextView time_text = view.findViewById(R.id.time_text);
+        TextView cash_text = view.findViewById(R.id.cash_text);
+
+        r_addr.setText(order.getAddrRestaurant());
+        c_addr.setText(order.getAddrCustomer());
+        time_text.setText(order.getTime());
+        cash_text.setText(order.getTotPrice() + "$");
     }
 
     public void acceptOrder(){
@@ -328,9 +226,11 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         view.findViewById(R.id.button_confirm).setOnClickListener(e ->{
             if(!available){
-                Toast.makeText(getContext(),"You have alredy accepted this order!",Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(),
+                        "You have alredy accepted this order!",Toast.LENGTH_LONG).show();
             }else {
-                DatabaseReference query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + ROOT_UID);
+                DatabaseReference query = FirebaseDatabase.getInstance()
+                        .getReference(RIDERS_PATH + "/" + ROOT_UID);
 
                 Map<String, Object> status = new HashMap<String, Object>();
                 status.put("available", false);
@@ -341,7 +241,8 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         view.findViewById(R.id.button_cancel).setOnClickListener(e -> {
 
-            DatabaseReference query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + ROOT_UID + "/pending/");
+            DatabaseReference query = FirebaseDatabase
+                    .getInstance().getReference(RIDERS_PATH + "/" + ROOT_UID + "/pending/");
             query.removeValue();
             reservationDialog.dismiss();
 
@@ -362,10 +263,12 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         view.findViewById(R.id.button_confirm).setOnClickListener(e ->{
 
-            DatabaseReference query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + UID + "/pending/");
+            DatabaseReference query = FirebaseDatabase.getInstance()
+                    .getReference(RIDERS_PATH + "/" + ROOT_UID + "/pending/");
             query.removeValue();
 
-            DatabaseReference query2 = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + UID);
+            DatabaseReference query2 = FirebaseDatabase.getInstance()
+                    .getReference(RIDERS_PATH + "/" + ROOT_UID);
 
             Map<String, Object> status = new HashMap<String, Object>();
             status.put("available", true);
@@ -384,6 +287,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         reservationDialog.show();
     }
 
+    /*
     public void deletingOrder(){
 
         AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
@@ -393,10 +297,12 @@ public class Orders extends Fragment implements OnMapReadyCallback {
 
         view.findViewById(R.id.button_confirm).setOnClickListener(e ->{
             if(!available){
-                Toast.makeText(getContext(),"You can't remove order now!",Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(),"You can't remove order now!",Toast.LENGTH_LONG)
+                        .show();
             }
             else {
-                DatabaseReference query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + UID + "/pending/");
+                DatabaseReference query = FirebaseDatabase.getInstance()
+                        .getReference(RIDERS_PATH + "/" + ROOT_UID + "/pending/");
                 query.removeValue();
                 reservationDialog.dismiss();
             }
@@ -411,58 +317,32 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         reservationDialog.setTitle("Refuse Order?");
 
         reservationDialog.show();
-    }
+    }*/
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAdapter_pending.startListening();
-    }
-    @Override
-    public void onStop() {
-        super.onStop();
-        mAdapter_pending.stopListening();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         Log.d("MAP_DEBUG", "Sto visualizzando la posizione");
         mMap.setMyLocationEnabled(true);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
@@ -471,7 +351,8 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         Log.d("DEBUG MAP", "getLastKnownLocation: called.");
 
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
@@ -485,7 +366,6 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 }
             }
         });
-
     }
 
     private void calculateDirections(LatLng start, LatLng end){
@@ -562,8 +442,6 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                         .title("RISTORANTE BARDONECCHIA")
                         .snippet("Duration: " + route.legs[0].duration
                         ));
-
-
             }
         });
     }

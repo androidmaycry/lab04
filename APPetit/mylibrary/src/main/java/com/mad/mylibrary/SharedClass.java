@@ -1,7 +1,5 @@
 package com.mad.mylibrary;
 
-import java.io.File;
-
 public final class SharedClass {
     /**
      * Key for onSaveInstanceState() and onRestoreInstanceState()

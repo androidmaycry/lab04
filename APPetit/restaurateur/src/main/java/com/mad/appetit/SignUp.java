@@ -1,6 +1,7 @@
 package com.mad.appetit;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
@@ -84,7 +85,6 @@ public class SignUp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-
         // Initialize Places.
         Places.initialize(getApplicationContext(), "AIzaSyAAzAER-HprZhx5zvmEYIjVlJfYSHj2-G8");
         // Create a new Places client instance.
@@ -97,7 +97,6 @@ public class SignUp extends AppCompatActivity {
         address = findViewById(R.id.button_address);
         address.setOnClickListener(l-> {
 
-// Start the autocomplete intent.
             Intent intent = new Autocomplete.IntentBuilder(
                     AutocompleteActivityMode.FULLSCREEN, fields)
                     .build(this);
@@ -136,7 +135,7 @@ public class SignUp extends AppCompatActivity {
         mail = ((EditText)findViewById(R.id.mail)).getText().toString();
         psw = ((EditText)findViewById(R.id.psw)).getText().toString();
         name = ((EditText)findViewById(R.id.name)).getText().toString();
-        addr = ((TextView)findViewById(R.id.address)).getText().toString();
+        addr = ((Button)findViewById(R.id.button_address)).getText().toString();
         descr = ((EditText)findViewById(R.id.description)).getText().toString();
         phone = ((EditText)findViewById(R.id.time_text)).getText().toString();
 
@@ -162,6 +161,16 @@ public class SignUp extends AppCompatActivity {
 
         if(phone.trim().length() != 10){
             errMsg = "Invalid phone number";
+            return false;
+        }
+
+        if(openingTime.trim().length() == 0){
+            errMsg = "Fill opening time";
+            return false;
+        }
+
+        if(closingTime.trim().length() == 0){
+            errMsg = "Fill closing time";
             return false;
         }
 
@@ -278,11 +287,17 @@ public class SignUp extends AppCompatActivity {
 
         openingTimeDialog.setButton(AlertDialog.BUTTON_POSITIVE,"OK", (dialog, which) -> {
             timeOpen_open = false;
-
             int hourValue = hour.getValue();
             int minValue = min.getValue();
 
-            openingTime = hourValue + ":" + minValue;
+            String hourString = Integer.toString(hourValue), minString = Integer.toString(minValue);
+
+            if(hourValue < 10)
+                hourString = "0" + hourValue;
+            if(minValue < 10)
+                minString = "0" + minValue;
+
+            openingTime = hourString + ":" + minString;
 
             openingTimeButton.setText(openingTime);
         });
@@ -323,8 +338,14 @@ public class SignUp extends AppCompatActivity {
 
             int hourValue = hour.getValue();
             int minValue = min.getValue();
+            String hourString = Integer.toString(hourValue), minString = Integer.toString(minValue);
 
-            closingTime = hourValue + ":" + minValue;
+            if(hourValue < 10)
+                hourString = "0" + hourValue;
+            if(minValue < 10)
+                minString = "0" + minValue;
+
+            closingTime = hourString + ":" + minString;
 
             closingTimeButton.setText(closingTime);
         });
@@ -400,10 +421,19 @@ public class SignUp extends AppCompatActivity {
                 latitude = place.getLatLng().latitude;
                 longitude = place.getLatLng().longitude;
 
-                address.setVisibility(View.INVISIBLE);
-                TextView address = findViewById(R.id.address);
-                address.setVisibility(View.VISIBLE);
                 address.setText(place.getAddress());
+
+                if(currentPhotoPath != null) {
+                    Glide.with(Objects.requireNonNull(this))
+                            .load(currentPhotoPath)
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .into((ImageView) findViewById(R.id.img_profile));
+                }
+                else {
+                    Glide.with(Objects.requireNonNull(this))
+                            .load(R.drawable.restaurant_home)
+                            .into((ImageView) findViewById(R.id.img_profile));
+                }
 
                 Log.i("TAG", "Place: " + place.getAddress());
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
@@ -415,8 +445,6 @@ public class SignUp extends AppCompatActivity {
             }
         }
     }
-
-
 
     public void storeDatabase(){
         final ProgressDialog progressDialog = new ProgressDialog(this);
@@ -445,8 +473,12 @@ public class SignUp extends AppCompatActivity {
                             openingTime + " - " + closingTime, phone, downUri.toString()));
                     myRef.updateChildren(restMap);
 
+                    posInfoMap.put("info_pos", new LatLng(latitude, longitude));
+                    myRef.updateChildren(posInfoMap);
+
                     Intent i = new Intent();
                     setResult(1, i);
+                    progressDialog.dismiss();
                     finish();
                 }
             });
@@ -456,13 +488,14 @@ public class SignUp extends AppCompatActivity {
                     openingTime + " - " + closingTime, phone, null));
             myRef.updateChildren(restMap);
 
+            posInfoMap.put("info_pos", new LatLng(latitude, longitude));
+            myRef.updateChildren(posInfoMap);
+
             Intent i = new Intent();
             setResult(1, i);
+            progressDialog.dismiss();
             finish();
         }
-
-        posInfoMap.put("info_pos", new LatLng(latitude, longitude));
-        myRef.updateChildren(posInfoMap);
     }
 
     @Override
@@ -485,8 +518,16 @@ public class SignUp extends AppCompatActivity {
         ((EditText)findViewById(R.id.description)).setText(savedInstanceState.getString(Description));
 
         currentPhotoPath = savedInstanceState.getString(Photo);
-        if(currentPhotoPath != null){
-            Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView) findViewById(R.id.img_profile));
+        if(currentPhotoPath != null) {
+            Glide.with(Objects.requireNonNull(this))
+                    .load(currentPhotoPath)
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .into((ImageView) findViewById(R.id.img_profile));
+        }
+        else {
+            Glide.with(Objects.requireNonNull(this))
+                    .load(R.drawable.restaurant_home)
+                    .into((ImageView) findViewById(R.id.img_profile));
         }
 
         if(savedInstanceState.getBoolean(CameraOpen))

@@ -6,6 +6,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mad.mylibrary.Restaurateur;
+
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -89,7 +92,7 @@ public class Restaurant extends Fragment {
 
         entryChipGroup = view.findViewById(R.id.chip_group);
         recyclerView = view.findViewById(R.id.restaurant_recyclerview);
-        recyclerView.setHasFixedSize(true);
+        //recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
@@ -106,7 +109,6 @@ public class Restaurant extends Fragment {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
                 return new RestaurantViewHolder(view);
             }
-
         };
 
         recyclerView.setAdapter(mAdapter);
@@ -118,6 +120,7 @@ public class Restaurant extends Fragment {
                 if (dataSnapshot.exists()) {
                     for (DataSnapshot d : dataSnapshot.getChildren()) {
                         if(cuisineType.add(d.child("info").child("cuisine").getValue().toString())){
+                            Log.d("CHIP", "building");
                             Chip chip = new Chip(view.getContext());
                             chip.setCheckable(true);
                             chip.setText(d.child("info").child("cuisine").getValue().toString());
@@ -132,30 +135,27 @@ public class Restaurant extends Fragment {
                     }
                 }
 
-                entryChipGroup.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(ChipGroup chipGroup, int i) {
-                        if(chipGroup.getCheckedChipId() == View.NO_ID){
-                            onStop();
-                            mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
-                                @Override
-                                protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
-                                    String key = getRef(position).getKey();
-                                    holder.setData(model, position, key);
-                                }
+                entryChipGroup.setOnCheckedChangeListener((chipGroup, i) -> {
+                    if(chipGroup.getCheckedChipId() == View.NO_ID){
+                        onStop();
+                        mAdapter = new FirebaseRecyclerAdapter<Restaurateur, RestaurantViewHolder>(options) {
+                            @Override
+                            protected void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position, @NonNull Restaurateur model) {
+                                String key = getRef(position).getKey();
+                                holder.setData(model, position, key);
+                            }
 
-                                @NonNull
-                                @Override
-                                public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                                    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
-                                    return new RestaurantViewHolder(view);
-                                }
+                            @NonNull
+                            @Override
+                            public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                                View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item,parent,false);
+                                return new RestaurantViewHolder(view1);
+                            }
 
-                            };
+                        };
 
-                            recyclerView.setAdapter(mAdapter);
-                            onStart();
-                        }
+                        recyclerView.setAdapter(mAdapter);
+                        onStart();
                     }
                 });
             }
@@ -175,6 +175,12 @@ public class Restaurant extends Fragment {
         final MenuItem searchItem = menu.findItem(R.id.search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
 
+        searchView.setOnCloseListener(() -> {
+            entryChipGroup.setVisibility(View.VISIBLE);
+            getActivity().findViewById(R.id.navigation).setVisibility(View.VISIBLE);
+            return false;
+        });
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -184,8 +190,9 @@ public class Restaurant extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 onStop();
-                entryChipGroup.setVisibility(View.INVISIBLE);
                 if(newText.length()==0){
+                    entryChipGroup.setVisibility(View.GONE);
+                    getActivity().findViewById(R.id.navigation).setVisibility(View.GONE);
                     options =
                             new FirebaseRecyclerOptions.Builder<Restaurateur>()
                                     .setQuery(FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO),
@@ -214,6 +221,8 @@ public class Restaurant extends Fragment {
                                             }).build();
                 }
                 else {
+                    entryChipGroup.setVisibility(View.GONE);
+                    getActivity().findViewById(R.id.navigation).setVisibility(View.GONE);
                     options =
                             new FirebaseRecyclerOptions.Builder<Restaurateur>()
                                     .setQuery(FirebaseDatabase.getInstance().getReference().child(RESTAURATEUR_INFO), snapshot -> {

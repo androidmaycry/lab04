@@ -1,6 +1,14 @@
 package com.mad.customer;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.common.api.Status;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.mad.mylibrary.User;
 
 import static com.mad.mylibrary.SharedClass.*;
@@ -34,9 +42,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class SignUp extends AppCompatActivity {
@@ -53,7 +64,8 @@ public class SignUp extends AppCompatActivity {
 
     private String error_msg;
 
-    FirebaseDatabase database;
+    private FirebaseDatabase database;
+    private Button addressButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +75,28 @@ public class SignUp extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
+        // Initialize Places.
+        Places.initialize(getApplicationContext(), "AIzaSyAAzAER-HprZhx5zvmEYIjVlJfYSHj2-G8");
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(this);
+        // Set the fields to specify which types of place data to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
+
+        addressButton = findViewById(R.id.button_address);
+        addressButton.setOnClickListener(l-> {
+
+            Intent intent = new Autocomplete.IntentBuilder(
+                    AutocompleteActivityMode.FULLSCREEN, fields)
+                    .build(this);
+            startActivityForResult(intent, 2);
+        });
         Button confirm_reg = findViewById(R.id.back_order_button);
         confirm_reg.setOnClickListener(e -> {
             if(checkFields()){
                 auth.createUserWithEmailAndPassword(mail,psw).addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         ROOT_UID = auth.getUid();
-                        uploadImage();
+                        storeDatabase();
                     }
                     else {
                         Log.d("ERROR", "createUserWithEmail:failure", task.getException());
@@ -85,7 +112,7 @@ public class SignUp extends AppCompatActivity {
         findViewById(R.id.img_profile).setOnClickListener(e -> editPhoto());
     }
 
-    private void uploadImage() {
+    private void storeDatabase() {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         DatabaseReference myRef = database.getReference(CUSTOMER_PATH + "/" + ROOT_UID);
 
@@ -114,6 +141,7 @@ public class SignUp extends AppCompatActivity {
                     Intent i = new Intent();
                     setResult(1, i);
 
+                    progressDialog.dismiss();
                     finish();
                 }
             }).addOnFailureListener(task -> {
@@ -129,6 +157,7 @@ public class SignUp extends AppCompatActivity {
             Intent i = new Intent();
             setResult(1, i);
 
+            progressDialog.dismiss();
             finish();
         }
     }
@@ -205,26 +234,26 @@ public class SignUp extends AppCompatActivity {
         mail = ((EditText)findViewById(R.id.mail)).getText().toString();
         phone = ((EditText)findViewById(R.id.phone2)).getText().toString();
         psw = ((EditText)findViewById(R.id.psw)).getText().toString();
-        address = ((EditText)findViewById(R.id.home_address)).getText().toString();
+        address = ((Button)findViewById(R.id.button_address)).getText().toString();
         psw_confirm = ((EditText)findViewById(R.id.psw_confirm)).getText().toString();
 
         if(name.trim().length() == 0){
-            error_msg = "Insert name";
+            error_msg = "Fill name";
             return false;
         }
 
         if(surname.trim().length() == 0){
-            error_msg = "Insert address";
+            error_msg = "Fill address";
             return false;
         }
 
         if(mail.trim().length() == 0 || !android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()){
-            error_msg = "Insert e-mail";
+            error_msg = "Invalid e-mail";
             return false;
         }
 
-        if(phone.trim().length() == 0){
-            error_msg = "Insert phone number";
+        if(phone.trim().length() != 10){
+            error_msg = "Invalid phone number";
             return false;
         }
 
@@ -295,6 +324,34 @@ public class SignUp extends AppCompatActivity {
 
         if((requestCode == 1 || requestCode == 2) && resultCode == RESULT_OK){
             Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView)findViewById(R.id.img_profile));
+        }
+
+        if (requestCode == 2) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+
+                addressButton.setText(place.getAddress());
+
+                if(currentPhotoPath != null) {
+                    Glide.with(Objects.requireNonNull(this))
+                            .load(currentPhotoPath)
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .into((ImageView) findViewById(R.id.img_profile));
+                }
+                else {
+                    Glide.with(Objects.requireNonNull(this))
+                            .load(R.drawable.restaurant_home)
+                            .into((ImageView) findViewById(R.id.img_profile));
+                }
+
+                Log.i("TAG", "Place: " + place.getAddress());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i("TAG", status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
         }
     }
 

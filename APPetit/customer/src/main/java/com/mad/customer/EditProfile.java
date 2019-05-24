@@ -1,6 +1,14 @@
 package com.mad.customer;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.common.api.Status;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.mad.mylibrary.User;
 
 import android.Manifest;
@@ -36,9 +44,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.mad.mylibrary.SharedClass.*;
@@ -51,7 +62,10 @@ public class EditProfile extends AppCompatActivity {
     private String currentPhotoPath;
     private String address;
 
+    private Button addressButton;
+
     private boolean dialog_open = false;
+    private boolean photoChanged = false;
 
     private String error_msg;
 
@@ -66,10 +80,25 @@ public class EditProfile extends AppCompatActivity {
 
         getData();
 
+        // Initialize Places.
+        Places.initialize(getApplicationContext(), "AIzaSyAAzAER-HprZhx5zvmEYIjVlJfYSHj2-G8");
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(this);
+        // Set the fields to specify which types of place data to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
+
+        addressButton = findViewById(R.id.cust_edit_address);
+        addressButton.setOnClickListener(l-> {
+            Intent intent = new Autocomplete.IntentBuilder(
+                    AutocompleteActivityMode.FULLSCREEN, fields)
+                    .build(this);
+            startActivityForResult(intent, 2);
+        });
+
         Button confirm_reg = findViewById(R.id.back_order_button);
         confirm_reg.setOnClickListener(e -> {
             if(checkFields()){
-                uploadImage();
+                storeDatabase();
             }
             else{
                 Toast.makeText(getApplicationContext(), error_msg, Toast.LENGTH_LONG).show();
@@ -89,7 +118,7 @@ public class EditProfile extends AppCompatActivity {
         currentPhotoPath = user.getPhotoPath();
 
         ((EditText)findViewById(R.id.name)).setText(name);
-        ((EditText)findViewById(R.id.home_address)).setText(address);
+        ((Button)findViewById(R.id.cust_edit_address)).setText(address);
         ((EditText)findViewById(R.id.mail)).setText(mail);
         ((EditText)findViewById(R.id.phone2)).setText(phone);
         ((EditText)findViewById(R.id.surname)).setText(surname);
@@ -115,25 +144,25 @@ public class EditProfile extends AppCompatActivity {
         surname = ((EditText)findViewById(R.id.surname)).getText().toString();
         mail = ((EditText)findViewById(R.id.mail)).getText().toString();
         phone = ((EditText)findViewById(R.id.phone2)).getText().toString();
-        address = ((EditText)findViewById(R.id.home_address)).getText().toString();
+        address = ((Button)findViewById(R.id.cust_edit_address)).getText().toString();
 
         if(name.trim().length() == 0){
-            error_msg = "Insert name";
+            error_msg = "Fill name";
             return false;
         }
 
         if(surname.trim().length() == 0){
-            error_msg = "Insert address";
+            error_msg = "Fill surname";
             return false;
         }
 
         if(mail.trim().length() == 0 || !android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()){
-            error_msg = "Insert e-mail";
+            error_msg = "Invalid e-mail";
             return false;
         }
 
-        if(phone.trim().length() == 0){
-            error_msg = "Insert phone number";
+        if(phone.trim().length() != 10){
+            error_msg = "Fill phone number";
             return false;
         }
 
@@ -145,47 +174,52 @@ public class EditProfile extends AppCompatActivity {
         return true;
     }
 
-    private void uploadImage() {
+    private void storeDatabase(){
         final ProgressDialog progressDialog = new ProgressDialog(this);
-        DatabaseReference myRef = database.getReference(CUSTOMER_PATH+"/"+ROOT_UID);
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference(CUSTOMER_PATH + "/" + ROOT_UID);
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+        Map<String, Object> profileMap = new HashMap<>();
 
         progressDialog.setTitle("Updating profile...");
         progressDialog.show();
 
-        if(currentPhotoPath != null) {
-            Uri url = Uri.fromFile(new File(currentPhotoPath));
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+        if(photoChanged && currentPhotoPath != null) {
+            Uri photoUri = Uri.fromFile(new File(currentPhotoPath));
             StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
-            ref.putFile(url).continueWithTask(task -> {
+
+            ref.putFile(photoUri).continueWithTask(task -> {
                 if (!task.isSuccessful()){
-                    throw task.getException();
+                    throw Objects.requireNonNull(task.getException());
                 }
                 return ref.getDownloadUrl();
             }).addOnCompleteListener(task -> {
                 if (task.isSuccessful()){
                     Uri downUri = task.getResult();
-                    Log.d("URL", "onComplete: Url: "+ downUri.toString());
 
-                    Map<String, Object> new_user = new HashMap<>();
-                    new_user.put("customer_info",new User("malanti", name, surname
+                    profileMap.put("customer_info", new User("malnati", name, surname
                             , mail, phone, address, downUri.toString()));
-                    myRef.updateChildren(new_user);
+                    myRef.updateChildren(profileMap);
 
+                    progressDialog.dismiss();
                     finish();
                 }
-            }).addOnFailureListener(task -> {
-                Log.d("FAILURE",task.getMessage());
             });
         }
         else{
-            Map<String, Object> new_user = new HashMap<String, Object>();
-            new_user.put("customer_info",new User("malnati", name, surname
-                    ,mail,phone, address, user.getPhotoPath()));
-            myRef.updateChildren(new_user);
+            if(currentPhotoPath != null)
+                profileMap.put("customer_info", new User("malnati", name, surname
+                        , mail, phone, address, currentPhotoPath));
+            else
+                profileMap.put("customer_info", new User("malnati", name, surname
+                        , mail, phone, address, null));
 
+            myRef.updateChildren(profileMap);
+
+            progressDialog.dismiss();
             finish();
         }
     }
+
 
     private void editPhoto(){
         AlertDialog alertDialog = new AlertDialog.Builder(EditProfile.this, R.style.AlertDialogStyle).create();
@@ -226,18 +260,15 @@ public class EditProfile extends AppCompatActivity {
     private void cameraIntent(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Log.d("FILE: ","error creating file");
-            }
-            // Continue only if the File was successfully created
+            File photoFile = createImageFile();
+
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.mad.customer",
+                        "com.example.android.fileprovider",
                         photoFile);
+
+                photoChanged = true;
+
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, 2);
             }
@@ -258,7 +289,7 @@ public class EditProfile extends AppCompatActivity {
         }
     }
 
-    private File createImageFile() throws IOException {
+    private File createImageFile() {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "IMG_" + timeStamp + "_";
@@ -301,6 +332,7 @@ public class EditProfile extends AppCompatActivity {
 
         if((requestCode == 1) && resultCode == RESULT_OK && null != data){
             Uri selectedImage = data.getData();
+            photoChanged = true;
 
             String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
@@ -317,6 +349,32 @@ public class EditProfile extends AppCompatActivity {
 
         if((requestCode == 1 || requestCode == 2) && resultCode == RESULT_OK){
             Glide.with(getApplicationContext()).load(currentPhotoPath).into((ImageView)findViewById(R.id.img_profile));
+        }
+
+        if (requestCode == 2) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+
+                addressButton.setText(place.getAddress());
+
+                if(currentPhotoPath != null) {
+                    Glide.with(Objects.requireNonNull(this))
+                            .load(currentPhotoPath)
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                            .into((ImageView) findViewById(R.id.img_profile));
+                }
+                else {
+                    Glide.with(Objects.requireNonNull(this))
+                            .load(R.drawable.restaurant_home)
+                            .into((ImageView) findViewById(R.id.img_profile));
+                }
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i("TAG", status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
         }
     }
 

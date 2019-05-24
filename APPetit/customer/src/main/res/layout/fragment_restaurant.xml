@@ -7,6 +7,7 @@
     tools:context=".Restaurant">
 
     <HorizontalScrollView
+        android:id="@+id/horizontal_scroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"

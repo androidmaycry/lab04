@@ -136,7 +136,14 @@ public class Confirm extends AppCompatActivity {
             int hourValue = hour.getValue();
             int minValue = min.getValue();
 
-            desiredTime = hourValue + ":" + minValue;
+            String hourString = Integer.toString(hourValue), minString = Integer.toString(minValue);
+
+            if(hourValue < 10)
+                hourString = "0" + hourValue;
+            if(minValue < 10)
+                minString = "0" + minValue;
+
+            desiredTime = hourString + ":" + minString;
 
             desiredTimeButton.setText(desiredTime);
         });

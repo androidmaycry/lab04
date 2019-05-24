@@ -83,33 +83,32 @@
 
         <TextView
             android:id="@+id/dish_num"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="32dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
             android:autoSizeTextType="uniform"
             android:text="0"
             android:textAlignment="center"
-            card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toBottomOf="@+id/add_dish"
-            card_view:layout_constraintVertical_bias="0.0" />
+            card_view:layout_constraintTop_toBottomOf="@+id/add_dish" />
 
         <ImageView
             android:id="@+id/delete_dish"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:src="@drawable/ic_minus"
             card_view:layout_constraintBottom_toBottomOf="parent"
-            card_view:layout_constraintEnd_toEndOf="parent" />
+            card_view:layout_constraintEnd_toEndOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@+id/dish_num"
+            card_view:layout_constraintVertical_bias="0.0" />
 
         <ImageView
             android:id="@+id/add_dish"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:clickable="true"
             android:src="@drawable/ic_plus"

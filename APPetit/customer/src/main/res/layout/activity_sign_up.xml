@@ -9,6 +9,20 @@
         android:layout_height="match_parent"
         tools:context=".SignUp">
 
+        <Button
+            android:id="@+id/button_address"
+            android:layout_width="302dp"
+            android:layout_height="58dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="8dp"
+            android:color="@color/colorPrimary"
+            android:text="Insert address"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.494"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/phone2" />
+
         <EditText
             android:id="@+id/mail"
             android:layout_width="0dp"
@@ -110,21 +124,6 @@
             app:srcCompat="@drawable/ic_add_circle_black_24dp"/>
 
         <EditText
-            android:id="@+id/home_address"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="44dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="44dp"
-            android:ems="10"
-            android:hint="Home Address"
-            android:inputType="textCapCharacters"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/phone2" />
-
-        <EditText
             android:id="@+id/psw_confirm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -152,7 +151,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/home_address" />
+            app:layout_constraintTop_toBottomOf="@+id/button_address" />
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>

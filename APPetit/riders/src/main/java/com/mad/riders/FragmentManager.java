@@ -88,6 +88,7 @@ public class FragmentManager extends AppCompatActivity implements
         return false;
     };
     private View notificationBadge;
+    private Intent serviceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +142,13 @@ public class FragmentManager extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopService(serviceIntent);
     }
 
     private void checkBadge(){
@@ -259,7 +267,7 @@ public class FragmentManager extends AppCompatActivity implements
 
     private void startLocationService(){
         if(!isLocationServiceRunning()){
-            Intent serviceIntent = new Intent(this, LocationService.class);
+            serviceIntent = new Intent(this, LocationService.class);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
                 FragmentManager.this.startForegroundService(serviceIntent);
             }

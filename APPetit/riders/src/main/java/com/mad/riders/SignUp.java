@@ -134,20 +134,9 @@ public class SignUp extends AppCompatActivity {
 
             StorageReference ref = storageReference.child("images/").child("riders/").child(UID);
             File file = null;
-            try {
-               file =  Utilities.reizeImageFileWithGlide(currentPhotoPath);
-               Uri imageUri = Uri.fromFile(file);
+            Uri imageUri = Uri.fromFile(new File(currentPhotoPath));
 
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            ref.putFile(Uri.fromFile(file)).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            ref.putFile(imageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if (!task.isSuccessful()){

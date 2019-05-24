@@ -188,13 +188,12 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                     String customerAddress = order.getAddrCustomer();
                     Log.d("QUERY", customerAddress);
                     Log.d("QUERY", restaurantAddr);
-                    restaurantAddr = restaurantAddr + " Torino";
-                    LatLng restaurantPos = getLocationFromAddress(restaurantAddr);
-                    LatLng customerPos = getLocationFromAddress(customerAddress);
-                    getLastKnownLocation(restaurantPos);
 
                     if(order.getAddrCustomer().compareTo("")!= 0) {
-                        b.setText("No order pending");
+                        restaurantAddr = restaurantAddr + " Torino";
+
+                        LatLng restaurantPos = getLocationFromAddress(restaurantAddr);
+                        getLastKnownLocation(restaurantPos);
                         b.setEnabled(true);
                     }
                 }

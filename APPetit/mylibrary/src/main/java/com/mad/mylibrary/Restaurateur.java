@@ -9,7 +9,7 @@ public final class Restaurateur{
         this.addr = "";
         this.cuisine = "";
         this.phone = "";
-        this.photoUri = "";
+        this.photoUri = null;
     }
 
     public Restaurateur(String mail, String name, String addr, String cuisine, String openingTime, String phone, String photoUri) {

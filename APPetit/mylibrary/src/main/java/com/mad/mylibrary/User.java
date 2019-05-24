@@ -10,11 +10,13 @@ public final class User{
     public String photoPath;
 
     public User(){
-        this.username = "Null";
-        this.name = "Null";
-        this.surname = "Null";
-        this.email = "Null";
-        this.phone = "Null";
+        this.username = "";
+        this.name = "";
+        this.surname = "";
+        this.email = "";
+        this.phone = "";
+        this.addr = "";
+        this.photoPath = null;
     }
 
     public User(String username, String name, String surname, String email, String phone, String addr, String photoPath){

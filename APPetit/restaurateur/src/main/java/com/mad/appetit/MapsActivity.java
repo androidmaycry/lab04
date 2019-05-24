@@ -80,6 +80,7 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
                 if (mapsFragVisible) {
                     mapsFragVisible = false;
                     item.setIcon(R.drawable.icon_map);
+
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_maps_container,
                             new ListRiderFragment()).commit();
                 }

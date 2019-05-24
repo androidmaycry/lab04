@@ -111,6 +111,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
 
     private double longitude, latitude;
+    private Query queryRestPos, queryRiderPos;
+    ValueEventListener restPosList, riderPosList;
 
     private HashMap<String, Position> posMap;
     private HashMap<String, String> riderName;
@@ -173,8 +175,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         updateLocationUI();
         getDeviceLocation();
 
-        Query query = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO +"/"+ROOT_UID).child("info_pos");
-        query.addValueEventListener(new ValueEventListener() {
+        queryRestPos = FirebaseDatabase.getInstance().getReference(RESTAURATEUR_INFO +"/"+ROOT_UID).child("info_pos");
+        queryRestPos.addValueEventListener(restPosList = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -189,8 +191,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        query = FirebaseDatabase.getInstance().getReference(RIDERS_PATH);
-        query.addValueEventListener(new ValueEventListener() {
+        queryRiderPos = FirebaseDatabase.getInstance().getReference(RIDERS_PATH);
+        queryRiderPos.addValueEventListener(riderPosList = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -219,12 +221,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                     else{
                         boolean first = true;
                         for (Map.Entry<Double, String> entry : distanceMap.entrySet()) {
-                            Log.d("ENTRY", ""+riderKey.contains(entry.getValue()));
                             if(!(riderKey.contains(entry.getValue()))) {
                                 riderKey.add(entry.getValue());
                                 if (first) {
                                     first = false;
-                                    Log.d("HERE", "ciao");
+
                                     Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude))
                                             .title(riderName.get(entry.getValue()))
                                             .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
@@ -243,12 +244,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             else{
                                 if(first){
                                     first = false;
-                                    Log.d("PROVA", ""+markerMap.get(entry.getValue()));
+
                                     markerMap.get(entry.getValue()).setPosition(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude));
+                                    markerMap.get(entry.getValue()).setSnippet(new DecimalFormat("#.##").format(entry.getKey()) + " km");
                                     markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)));
                                 }
                                 else{
                                     markerMap.get(entry.getValue()).setPosition(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude));
+                                    markerMap.get(entry.getValue()).setSnippet(new DecimalFormat("#.##").format(entry.getKey()) + " km");
                                     markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("hamburger", 130, 130)));
                                 }
                             }
@@ -408,6 +411,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         } catch(SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+
+    @Override
+    public void onPause() {
+        Log.d("onPause", "()");
+        queryRestPos.removeEventListener(restPosList);
+        queryRiderPos.removeEventListener(riderPosList);
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        Log.d("OnStop", "()");
+        super.onStop();
+    }
+
+    @Override
+    public void onResume() {
+        Log.d("onResume","");
+        super.onResume();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

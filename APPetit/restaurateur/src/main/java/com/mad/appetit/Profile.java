@@ -108,15 +108,17 @@ public class Profile extends Fragment {
                     ((TextView)view.findViewById(R.id.phone2)).setText(phone);
                     ((TextView)view.findViewById(R.id.time_text)).setText(time);
 
-                    if(photoUri != null)
+                    if(photoUri != null) {
                         Glide.with(Objects.requireNonNull(view.getContext()))
                                 .load(photoUri)
                                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                                .into((ImageView)view.findViewById(R.id.profile_image));
-                    else
+                                .into((ImageView) view.findViewById(R.id.profile_image));
+                    }
+                    else {
                         Glide.with(Objects.requireNonNull(view.getContext()))
-                                .load(R.drawable.person)
-                                .into((ImageView)view.findViewById(R.id.profile_image));
+                                .load(R.drawable.restaurant_home)
+                                .into((ImageView) view.findViewById(R.id.profile_image));
+                    }
                 }
             }
 

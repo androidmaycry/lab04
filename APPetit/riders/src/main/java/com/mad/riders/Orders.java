@@ -172,8 +172,6 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 }
             }
         });
-        b.setText("No order pending");
-        b.setEnabled(false);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         query = database

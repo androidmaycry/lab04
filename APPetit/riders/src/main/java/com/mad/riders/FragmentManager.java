@@ -108,7 +108,6 @@ public class FragmentManager extends AppCompatActivity implements
         startLocationService();
 
         value = true;
-        /* TODO: DEBUG */
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference status = database.getReference(RIDERS_PATH+"/"+ROOT_UID+"/available/");
 

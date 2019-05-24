@@ -89,6 +89,8 @@ public class Orders extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     int col = 0;
     private ScrollView mScrollView;
+    private DatabaseReference query;
+    private ValueEventListener listenerQuery;
 
     public Orders() {
         // Required empty public constructor
@@ -121,13 +123,11 @@ public class Orders extends Fragment implements OnMapReadyCallback {
         mapView.onResume();
         mapView.getMapAsync(this);
 
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
         if(mGeoApiContext == null){
             mGeoApiContext = new GeoApiContext.Builder().apiKey(getString(R.string.google_maps_key))
                     .build();
         }
-
 
         restaurantReached = false;
         query1 = FirebaseDatabase.getInstance().getReference(RIDERS_PATH + "/" + ROOT_UID)
@@ -139,15 +139,16 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 available = (boolean) dataSnapshot.getValue();
                 if(!available){
                     Button btn = view.findViewById(R.id.accept_button);
-                    btn.setText("Accept Order");
+                    btn.setText("Restaurant Reached");
                     TextView text = view.findViewById(R.id.status);
-                    text.setText("Pending..");
-                    text.setTextColor(200000);
+                    text.setText("Delivering..");
                 }
                 else{
-
+                    Button btn = view.findViewById(R.id.accept_button);
+                    btn.setText("No pending order");
                     TextView text = view.findViewById(R.id.status);
                     text.setText("Available");
+                    cancelOrderView(view);
                 }
             }
 
@@ -164,27 +165,21 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 acceptOrder();
             else{
                 if(!restaurantReached){
-                    restaurantReached = true;
-                    b.setText("Order delivered");
-                    String customerAddr = order.getAddrCustomer();
-                    mMap.clear();
-                    getLastKnownLocation(getLocationFromAddress(customerAddr));
+                    restaurantReachedByRider(b);
                 }
                 else{
                     deliveredOrder();
-                    restaurantReached = true;
-                    //getLastKnownLocation(getLocationFromAddress(""));
                 }
             }
         });
         b.setText("No order pending");
         b.setEnabled(false);
 
-
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference query = database
+        query = database
                 .getReference(RIDERS_PATH + "/"+ROOT_UID+"/pending/");
-        query.addValueEventListener(new ValueEventListener() {
+
+        listenerQuery = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -201,7 +196,7 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                     getLastKnownLocation(restaurantPos);
 
                     if(order.getAddrCustomer().compareTo("")!= 0) {
-                        b.setText("Accept order");
+                        b.setText("No order pending");
                         b.setEnabled(true);
                     }
                 }
@@ -214,15 +209,42 @@ public class Orders extends Fragment implements OnMapReadyCallback {
                 b.setText("No order pending");
                 b.setEnabled(false);
             }
-        });
+        };
 
-
+        query.addValueEventListener(listenerQuery);
+        
         return view;
     }
 
-    private void changeDirectionMap() {
-        //calculateDirection();
-        //addPolylinesToMap();
+    @Override
+    public void onPause() {
+        super.onPause();
+        query1.removeEventListener(listenerQuery);
+    }
+
+    private void restaurantReachedByRider(Button b) {
+        AlertDialog reservationDialog = new AlertDialog.Builder(this.getContext()).create();
+        LayoutInflater inflater = LayoutInflater.from(this.getContext());
+        final View view = inflater.inflate(R.layout.reservation_dialog, null);
+
+        view.findViewById(R.id.button_confirm).setOnClickListener(e ->{
+            restaurantReached = true;
+
+            b.setText("Order delivered");
+            String customerAddr = order.getAddrCustomer();
+            mMap.clear();
+            getLastKnownLocation(getLocationFromAddress(customerAddr));
+            reservationDialog.dismiss();
+        });
+
+        view.findViewById(R.id.button_cancel).setOnClickListener(e -> {
+            reservationDialog.dismiss();
+        });
+
+        reservationDialog.setView(view);
+        reservationDialog.setTitle("Restaurant Reached?");
+
+        reservationDialog.show();
     }
 
     private void setOrderView(View view,OrderItem order)

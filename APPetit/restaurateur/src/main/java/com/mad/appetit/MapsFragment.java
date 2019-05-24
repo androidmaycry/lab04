@@ -228,16 +228,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                                     Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude))
                                             .title(riderName.get(entry.getValue()))
-                                            .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
+                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.nearest_icon))
+                                            //.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)))
                                             .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"));
                                     markerMap.put(entry.getValue(), m);
+                                    Log.d("ID1", ""+entry.getValue());
                                     mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
                                 } else {
                                     Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude))
+                                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_rider))
                                             .title(riderName.get(entry.getValue()))
                                             .snippet(new DecimalFormat("#.##").format(entry.getKey()) + " km"));
 
                                     markerMap.put(entry.getValue(), m);
+                                    Log.d("ID2", ""+entry.getValue());
                                     mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
                                 }
                             }
@@ -247,16 +251,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
                                     markerMap.get(entry.getValue()).setPosition(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude));
                                     markerMap.get(entry.getValue()).setSnippet(new DecimalFormat("#.##").format(entry.getKey()) + " km");
-                                    markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("rider_icon_maps", 130, 130)));
+                                    markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.nearest_icon));
+                                    mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
                                 }
                                 else{
                                     markerMap.get(entry.getValue()).setPosition(new LatLng(posMap.get(entry.getValue()).latitude, posMap.get(entry.getValue()).longitude));
                                     markerMap.get(entry.getValue()).setSnippet(new DecimalFormat("#.##").format(entry.getKey()) + " km");
-                                    markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("hamburger", 130, 130)));
+                                    markerMap.get(entry.getValue()).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.icon_rider));
+                                    mMap.setOnInfoWindowClickListener(marker -> selectRider(entry.getValue(), getActivity().getIntent().getStringExtra(ORDER_ID)));
                                 }
                             }
                         }
 
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))
+                            .title("My Restaurant"));
                         ((MapsActivity) getActivity()).saveDistanceMap(distanceMap);
                         ((MapsActivity) getActivity()).saveRidersList(riderName);
                     }

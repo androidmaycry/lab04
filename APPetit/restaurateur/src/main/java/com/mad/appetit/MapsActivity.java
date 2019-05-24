@@ -180,8 +180,11 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
         LayoutInflater inflater = LayoutInflater.from(this);
         final View view = inflater.inflate(R.layout.reservation_dialog, null);
 
-        view.findViewById(R.id.button_confirm).setOnClickListener(e ->
-                selectRider(distanceMap.firstEntry().getValue(), getIntent().getStringExtra(ORDER_ID)));
+        view.findViewById(R.id.button_confirm).setOnClickListener(e -> {
+                    choiceDialog.dismiss();
+                    selectRider(distanceMap.firstEntry().getValue(), getIntent().getStringExtra(ORDER_ID));
+                });
+
         view.findViewById(R.id.button_cancel).setOnClickListener(e -> choiceDialog.dismiss());
 
         choiceDialog.setView(view);
@@ -228,6 +231,10 @@ public class MapsActivity extends AppCompatActivity implements MapsFragment.OnFr
 
                                 DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + keyRider + RIDERS_ORDER);
                                 addOrderToRider.updateChildren(orderMap);
+
+                                //setting to 'false' boolean variable of rider
+                                DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + keyRider + "/available");
+                                setFalse.setValue(false);
 
                                 Toast.makeText(getApplicationContext(), "Order assigned to rider " + name, Toast.LENGTH_LONG).show();
 

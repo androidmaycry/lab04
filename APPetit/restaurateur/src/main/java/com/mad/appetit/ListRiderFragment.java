@@ -211,6 +211,10 @@ public class ListRiderFragment extends Fragment {
                                     DatabaseReference addOrderToRider = database.getReference(RIDERS_PATH + "/" + keyRider + RIDERS_ORDER);
                                     addOrderToRider.updateChildren(orderMap);
 
+                                    //setting to 'false' boolean variable of rider
+                                    DatabaseReference setFalse = database.getReference(RIDERS_PATH + "/" + keyRider + "/available");
+                                    setFalse.setValue(false);
+
                                     Toast.makeText(getContext(), "Order assigned to rider " + name, Toast.LENGTH_LONG).show();
 
                                     getActivity().finish();

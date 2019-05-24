@@ -45,7 +45,6 @@ import java.util.Objects;
 
 class ViewHolderReservation extends RecyclerView.ViewHolder{
     private TextView name, addr, cell, time, price;
-    private ImageView img;
     private int position;
 
     public ViewHolderReservation(View itemView){
@@ -54,7 +53,6 @@ class ViewHolderReservation extends RecyclerView.ViewHolder{
         name = itemView.findViewById(R.id.listview_name);
         addr = itemView.findViewById(R.id.listview_address);
         cell = itemView.findViewById(R.id.listview_cellphone);
-        img = itemView.findViewById(R.id.profile_image);
         time = itemView.findViewById(R.id.textView_time);
         price = itemView.findViewById(R.id.listview_price);
     }
@@ -65,9 +63,6 @@ class ViewHolderReservation extends RecyclerView.ViewHolder{
         this.cell.setText(current.getCell());
         this.time.setText(current.getTime());
         this.price.setText(current.getTotPrice());
-        if(current.getImg() != null) {
-            Glide.with(itemView.getContext()).load(current.getImg()).into(img);
-        }
         this.position = position;
     }
 }

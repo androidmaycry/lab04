@@ -29,6 +29,7 @@
         android:layout_marginTop="8dp"
         android:src="@drawable/ic_shopping_cart"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:tint="#FFFFFF"/>
 
 </android.support.constraint.ConstraintLayout>

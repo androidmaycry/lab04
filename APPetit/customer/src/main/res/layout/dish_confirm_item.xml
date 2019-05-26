@@ -25,7 +25,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:text="Name"
-            card_view:layout_constraintEnd_toStartOf="@+id/remove_conf_dish"
+            card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintStart_toStartOf="parent"
             card_view:layout_constraintTop_toTopOf="parent" />
 
@@ -39,8 +39,7 @@
             android:layout_marginBottom="8dp"
             android:text="Quantity"
             card_view:layout_constraintBottom_toBottomOf="parent"
-            card_view:layout_constraintEnd_toStartOf="@+id/remove_conf_dish"
-            card_view:layout_constraintHorizontal_bias="0.0"
+            card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintStart_toEndOf="@+id/textView9"
             card_view:layout_constraintTop_toBottomOf="@+id/dish_conf_price"
             card_view:layout_constraintVertical_bias="0.0" />
@@ -53,23 +52,10 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:text="Name"
-            card_view:layout_constraintEnd_toStartOf="@+id/remove_conf_dish"
+            card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintStart_toEndOf="@+id/textView7"
             card_view:layout_constraintTop_toBottomOf="@+id/dish_conf_name" />
 
-        <ImageView
-            android:id="@+id/remove_conf_dish"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:src="@drawable/ic_minus"
-            android:visibility="invisible"
-            card_view:layout_constraintBottom_toBottomOf="parent"
-            card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintTop_toTopOf="parent"
-            card_view:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/textView7"

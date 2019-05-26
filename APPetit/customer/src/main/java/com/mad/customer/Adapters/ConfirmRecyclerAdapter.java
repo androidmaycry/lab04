@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.mad.customer.Confirm;
+import com.mad.customer.UI.Confirm;
 import com.mad.customer.R;
 
 import java.util.ArrayList;
@@ -65,31 +65,9 @@ public class ConfirmRecyclerAdapter extends RecyclerView.Adapter<ConfirmRecycler
         myViewHolder.dish_name.setText(name);
         myViewHolder.dish_quant.setText(quantity);
         myViewHolder.dish_price.setText(price + " €");
-        myViewHolder.getView_item().findViewById(R.id.remove_conf_dish).setOnClickListener(e->{
-            changeItem(position);
-        });
+
 
     }
-    private void changeItem(int index){
-
-
-        int num = Integer.parseInt(quantities.get(index));
-        num--;
-        if(num==0) {
-            names.remove(index);
-            prices.remove(index);
-            quantities.remove(index);
-            notifyDataSetChanged();
-            confirm.removeItem(index);
-        }
-        else{
-            quantities.set(index, Integer.toString(num));
-            notifyDataSetChanged();
-            confirm.updatePrice();
-        }
-    }
-
-
 
     @Override
     public int getItemCount() {

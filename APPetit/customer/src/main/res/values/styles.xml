@@ -3,9 +3,7 @@
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-
+        <item name="colorSecondary">@color/colorSecondary</item>
     </style>
 
     <style name="Divider">
@@ -24,9 +22,18 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
-        <item name="android:colorAccent">#000000</item>
-        <item name="android:textColor">#000000</item>
-        <item name="android:textColorPrimary">#000000</item>
+        <item name="buttonBarNeutralButtonStyle">@style/NeutralButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
     </style>
+    <style name="NeutralButtonStyle" parent="Widget.AppCompat.ActionBar">
+        <item name="android:textColor">@color/colorSecondary</item>
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+    </style>
+
+    <style name="PositiveButtonStyle" parent="Widget.AppCompat.ActionBar">
+        <item name="android:textColor">@color/colorSecondary</item>
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+    </style>
+
 
 </resources>

@@ -7,7 +7,7 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".EditProfile">
+        tools:context=".UI.EditProfile">
 
         <EditText
             android:id="@+id/mail"
@@ -17,7 +17,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="44dp"
             android:ems="10"
-            android:hint="Mail address"
+            android:hint="Mail_address"
             android:inputType="textEmailAddress"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -31,7 +31,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="44dp"
             android:ems="10"
-            android:hint="Phone"
+            android:hint="Phone numbert"
             android:inputType="phone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +59,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginEnd="44dp"
             android:ems="10"
-            android:hint="Name"
+            android:hint="Nameame"
             android:inputType="textPersonName|textCapWords"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -107,7 +107,8 @@
             app:layout_constraintStart_toStartOf="@+id/img_profile"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_add_circle_black_24dp"/>
+            app:tint="@color/colorPrimary"
+            app:srcCompat="@drawable/ic_add_circle"/>
 
         <Button
             android:id="@+id/cust_edit_address"
@@ -117,7 +118,7 @@
             android:layout_marginTop="12dp"
             android:layout_marginEnd="8dp"
             android:backgroundTint="@color/colorPrimary"
-            android:text="Edit Address"
+            android:text="Edit_address"
             android:textAllCaps="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.485"

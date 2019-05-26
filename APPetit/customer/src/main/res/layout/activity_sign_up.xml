@@ -7,7 +7,7 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".SignUp">
+        tools:context=".UI.SignUp">
 
         <Button
             android:id="@+id/button_address"
@@ -16,7 +16,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="8dp"
-            android:color="@color/colorPrimary"
+            android:backgroundTint="@color/colorPrimary"
             android:text="Insert address"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.494"
@@ -121,7 +121,8 @@
             app:layout_constraintStart_toStartOf="@+id/img_profile"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
-            app:srcCompat="@drawable/ic_add_circle_black_24dp"/>
+            app:srcCompat="@drawable/ic_add_circle"
+            android:tint="@color/colorPrimary"/>
 
         <EditText
             android:id="@+id/psw_confirm"

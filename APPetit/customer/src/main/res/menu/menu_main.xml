@@ -5,7 +5,8 @@
     <item
         android:id="@+id/add"
         android:title="Edit Daily Offer"
-        android:icon="@drawable/modify"
+        android:iconTint="@color/colorSecondary"
+        android:icon="@drawable/ic_modify"
         app:showAsAction="always"/>
 
 </menu>

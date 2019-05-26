@@ -17,13 +17,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SignUp"></activity>
-        <activity android:name=".Confirm" />
-        <activity android:name=".EditProfile" />
-        <activity android:name=".Ordering" />
-        <activity android:name=".NavApp" />
+        <activity android:name=".UI.SignUp"></activity>
+        <activity android:name=".UI.Confirm" />
+        <activity android:name=".UI.EditProfile" />
+        <activity android:name=".UI.Ordering" />
+        <activity android:name=".UI.NavApp" />
         <activity
-            android:name=".MainActivity"
+            android:name=".UI.MainActivity"
             android:label="APPetit"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
